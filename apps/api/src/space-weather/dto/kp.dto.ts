@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { KpReading } from '@repo/shared';
 
-export class KpResponseDto implements KpReading {
+// KpResponseDto is a response envelope — it contains all KpReading fields plus
+// `label` and `cachedAt`. It intentionally does not `implements KpReading` because
+// the interface may gain required fields that don't belong on an envelope DTO.
+export class KpResponseDto {
   @ApiProperty({
     description: 'Numeric Kp index value on the 0–9 scale',
     example: 6,
