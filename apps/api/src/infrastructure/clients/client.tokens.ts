@@ -1,0 +1,4 @@
+export const AXIOS_NOAA = "AXIOS_NOAA";
+export const AXIOS_NOMINATIM = "AXIOS_NOMINATIM";
+export const NOAA_CLIENT = "NOAA_CLIENT";
+export const NOMINATIM_CLIENT = "NOMINATIM_CLIENT";
