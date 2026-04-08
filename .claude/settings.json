@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Write(.env)",
+      "Write(.env.*)",
+      "Edit(.env)",
+      "Edit(.env.*)"
+    ]
+  },
+  "env": {
+    "npm_config_user_agent": "pnpm"
+  }
+}
