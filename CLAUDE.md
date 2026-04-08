@@ -50,6 +50,7 @@ Each shared package needs its own `package.json` with a `name` field.
 - Import paths within a package use relative imports (`./foo`); cross-package imports use the package name (`@repo/types`).
 - Environment variables live in `.env` files — **never read, edit, or commit them**.
 - No barrel `index.ts` files unless the package explicitly exports a public API surface.
+- Follow the Pragmatic Programmer principles
 
 ## What NOT to Do
 

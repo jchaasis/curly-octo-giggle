@@ -1,8 +1,13 @@
 export interface SolarWind {
   time_tag: string;
-  speed: number;
-  density: number;
-  temperature: number;
+  speed: number | null;
+  density: number | null;
+  temperature: number | null;
+}
+
+export interface MagReading {
+  time_tag: string;
+  bz: number | null;
 }
 
 export interface KpReading {
