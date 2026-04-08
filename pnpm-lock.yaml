@@ -19,6 +19,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^11.0.0
         version: 11.1.18(@nestjs/common@11.1.18(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -65,6 +68,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -87,6 +93,8 @@ importers:
       vite:
         specifier: ^6.2.0
         version: 6.4.2(@types/node@22.19.17)(terser@5.46.1)
+
+  packages/shared: {}
 
 packages:
 
