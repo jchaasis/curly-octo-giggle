@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { NOMINATIM_CLIENT } from '../infrastructure/clients/client.tokens';
 import { INominatimClient } from '../infrastructure/clients/nominatim.client';
 import { GeoResultDto } from './dto/geocode.dto';
@@ -44,16 +44,37 @@ export class GeocodeService {
       return [];
     }
 
-    const results = await this.nominatim.search(sanitized);
+    let results: Awaited<ReturnType<typeof this.nominatim.search>>;
+    try {
+      results = await this.nominatim.search(sanitized);
+    } catch {
+      throw new HttpException(
+        { error: 'Geocoding service unavailable', timestamp: new Date().toISOString() },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    if (results.length === 0) {
+      this.logger.warn(`No geocoding results for query "${sanitized}"`);
+    }
+
     return results.map(toGeoResultDto);
   }
 
-  async reverse(lat: number, lon: number): Promise<GeoResultDto | null> {
-    const result = await this.nominatim.reverse(lat, lon);
+  async reverse(lat: number, lon: number): Promise<GeoResultDto> {
+    let result: Awaited<ReturnType<typeof this.nominatim.reverse>>;
+    try {
+      result = await this.nominatim.reverse(lat, lon);
+    } catch {
+      throw new HttpException(
+        { error: 'Geocoding service unavailable', timestamp: new Date().toISOString() },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
 
     if (!result) {
       this.logger.warn(`Reverse geocode returned no result for lat=${lat} lon=${lon}`);
-      return null;
+      return null;    
     }
 
     return toGeoResultDto(result);

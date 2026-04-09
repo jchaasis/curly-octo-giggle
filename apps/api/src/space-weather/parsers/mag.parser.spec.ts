@@ -69,6 +69,22 @@ describe('parseMag', () => {
   // ── array-of-objects ───────────────────────────────────────────────────────
 
   describe('array-of-objects format', () => {
+    it('preserves negative Bz values (does not flip sign)', () => {
+      const data = [
+        { time_tag: '2024-01-01 00:00:00', bz_gsm: '-12.7' },
+        { time_tag: '2024-01-01 00:01:00', bz_gsm: '-0.1' },
+      ];
+      const result = parseMag(data);
+      expect(result[0].bz).toBe(-12.7);
+      expect(result[1].bz).toBe(-0.1);
+    });
+
+    it('preserves positive Bz values', () => {
+      const data = [{ time_tag: '2024-01-01 00:00:00', bz_gsm: '8.4' }];
+      const result = parseMag(data);
+      expect(result[0].bz).toBe(8.4);
+    });
+
     it('maps bz_gsm field to bz', () => {
       const data = [
         { time_tag: '2024-01-01 00:00:00', bz_gsm: '-5.5' },

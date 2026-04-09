@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { AxiosError } from 'axios';
@@ -75,7 +75,10 @@ export class SpaceWeatherService {
         this.noaaClient.getMag(),
       ]);
     } catch (err) {
-      throw new ServiceUnavailableException('Solar wind data unavailable');
+      throw new HttpException(
+        { error: 'Solar wind data unavailable', source: 'NOAA DSCOVR', timestamp: new Date().toISOString() },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
     }
 
     const plasma = parsePlasma(plasmaRaw);
@@ -143,12 +146,18 @@ export class SpaceWeatherService {
         const raw = await this.noaaClient.getKpFallback();
         reading = parseKp(raw, 'fallback');
       } catch {
-        throw new ServiceUnavailableException('Kp index unavailable from all sources');
+        throw new HttpException(
+          { error: 'Kp index unavailable from all sources', source: 'NOAA Kp', timestamp: new Date().toISOString() },
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
       }
     }
 
     if (reading === null) {
-      throw new ServiceUnavailableException('Kp index unavailable from all sources');
+      throw new HttpException(
+        { error: 'Kp index unavailable from all sources', source: 'NOAA Kp', timestamp: new Date().toISOString() },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
     }
 
     const result: KpResponseDto = {
@@ -171,10 +180,20 @@ export class SpaceWeatherService {
     try {
       raw = await this.noaaClient.getFlares();
     } catch {
-      throw new ServiceUnavailableException('Flares data unavailable');
+      throw new HttpException(
+        { error: 'Flares data unavailable', source: 'NOAA SWPC', timestamp: new Date().toISOString() },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
     }
 
-    const flares = parseFlares(raw) as FlareDto[];
+    // Sort flares by peak_time descending (most recent first).
+    // Flares with no peak_time (still active) float to the top.
+    const flares = (parseFlares(raw) as FlareDto[]).sort((a, b) => {
+      if (!a.peak_time && !b.peak_time) return 0;
+      if (!a.peak_time) return -1;
+      if (!b.peak_time) return 1;
+      return b.peak_time.localeCompare(a.peak_time);
+    });
     const activeClass = this.highestFlareClass(flares);
 
     const result: FlaresResponseDto = {
@@ -195,7 +214,10 @@ export class SpaceWeatherService {
     try {
       raw = await this.noaaClient.getAlerts();
     } catch {
-      throw new ServiceUnavailableException('Alerts data unavailable');
+      throw new HttpException(
+        { error: 'Alerts data unavailable', source: 'NOAA SWPC', timestamp: new Date().toISOString() },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
     }
 
     const alerts = parseAlerts(raw);
