@@ -54,10 +54,8 @@ export default function App() {
       <div className="solaris-shell" style={{
         position: 'relative',
         zIndex: 1,
-        height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'hidden',
       }}>
         <ErrorBoundary panelName="Header">
           <Header
