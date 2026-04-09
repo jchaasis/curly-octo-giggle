@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ServiceUnavailableException } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AxiosError } from 'axios';
 
@@ -184,10 +184,13 @@ describe('SpaceWeatherService — getSolarWind()', () => {
     expect(result.data).toHaveLength(0);
   });
 
-  it('throws ServiceUnavailableException when the NOAA fetch fails', async () => {
+  it('throws HttpException 503 when the NOAA fetch fails', async () => {
     noaaClient.getPlasma.mockRejectedValue(new Error('network'));
 
-    await expect(service.getSolarWind()).rejects.toThrow(ServiceUnavailableException);
+    const err = await service.getSolarWind().catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
+    expect(err.getResponse()).toMatchObject({ error: expect.any(String), source: expect.any(String), timestamp: expect.any(String) });
   });
 });
 
@@ -319,19 +322,22 @@ describe('SpaceWeatherService — getKp()', () => {
   // Total failure paths
   // -------------------------------------------------------------------------
 
-  it('throws ServiceUnavailableException when both primary (AxiosError) and fallback fail', async () => {
+  it('throws HttpException 503 when both primary (AxiosError) and fallback fail', async () => {
     noaaClient.getKpPrimary.mockRejectedValue(makeAxiosError('timeout'));
     noaaClient.getKpFallback.mockRejectedValue(makeAxiosError('timeout'));
 
-    await expect(service.getKp()).rejects.toThrow(ServiceUnavailableException);
+    const err = await service.getKp().catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
   });
 
-  it('throws ServiceUnavailableException when primary returns null and fallback returns null', async () => {
+  it('throws HttpException 503 when primary returns null and fallback returns null', async () => {
     noaaClient.getKpPrimary.mockResolvedValue(EMPTY_KP_PAYLOAD);
-    // Fallback payload also empty → parseKp returns null
     noaaClient.getKpFallback.mockResolvedValue(EMPTY_KP_PAYLOAD);
 
-    await expect(service.getKp()).rejects.toThrow(ServiceUnavailableException);
+    const err = await service.getKp().catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
   });
 
   it('attaches kp label G5 for out-of-range kp values (guard test)', async () => {
@@ -501,9 +507,11 @@ describe('SpaceWeatherService — getAlerts()', () => {
     expect(result.alerts[1].product_id).toBe('ALTK04');
   });
 
-  it('throws ServiceUnavailableException when the NOAA fetch fails', async () => {
+  it('throws HttpException 503 when the NOAA fetch fails', async () => {
     noaaClient.getAlerts.mockRejectedValue(new Error('network'));
 
-    await expect(service.getAlerts()).rejects.toThrow(ServiceUnavailableException);
+    const err = await service.getAlerts().catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
   });
 });

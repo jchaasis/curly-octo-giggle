@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { GeocodeService } from './geocode.service';
 import { NOMINATIM_CLIENT } from '../infrastructure/clients/client.tokens';
 import { INominatimClient } from '../infrastructure/clients/nominatim.client';
@@ -54,7 +55,7 @@ describe('GeocodeService — search()', () => {
   });
 
   it('truncates queries longer than 200 characters', async () => {
-    nominatim.search.mockResolvedValue([]);
+    nominatim.search.mockResolvedValue([geoResult('Somewhere')]);
     const longQuery = 'A'.repeat(250);
 
     await service.search(longQuery);
@@ -95,23 +96,20 @@ describe('GeocodeService — search()', () => {
     expect(results).toHaveLength(2);
   });
 
-  it('returns empty array when Nominatim returns no matches', async () => {
+  it('throws HttpException 404 when Nominatim returns no matches', async () => {
     nominatim.search.mockResolvedValue([]);
 
-    const results = await service.search('xkzqjwpv');
-
-    expect(results).toEqual([]);
+    const err = await service.search('xkzqjwpv').catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.NOT_FOUND);
   });
 
-  // ---------------------------------------------------------------------------
-  // Error propagation — the service does not swallow Nominatim errors
-  // (controller layer maps them to HTTP 503)
-  // ---------------------------------------------------------------------------
-
-  it('propagates Nominatim errors to the caller', async () => {
+  it('throws HttpException 503 on Nominatim network failure', async () => {
     nominatim.search.mockRejectedValue(new Error('Network timeout'));
 
-    await expect(service.search('Paris')).rejects.toThrow('Network timeout');
+    const err = await service.search('Paris').catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
   });
 });
 
@@ -136,12 +134,20 @@ describe('GeocodeService — reverse()', () => {
     nominatim = module.get(NOMINATIM_CLIENT);
   });
 
-  it('returns null when Nominatim returns null (no result for coordinates)', async () => {
+  it('throws HttpException 404 when Nominatim returns null (no result for coordinates)', async () => {
     nominatim.reverse.mockResolvedValue(null);
 
-    const result = await service.reverse(0, 0);
+    const err = await service.reverse(0, 0).catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.NOT_FOUND);
+  });
 
-    expect(result).toBeNull();
+  it('throws HttpException 503 on Nominatim network failure', async () => {
+    nominatim.reverse.mockRejectedValue(new Error('timeout'));
+
+    const err = await service.reverse(10, 20).catch((e) => e);
+    expect(err).toBeInstanceOf(HttpException);
+    expect(err.getStatus()).toBe(HttpStatus.SERVICE_UNAVAILABLE);
   });
 
   it('maps the Nominatim result to a GeoResultDto', async () => {
@@ -153,14 +159,15 @@ describe('GeocodeService — reverse()', () => {
 
     const result = await service.reverse(37.7749, -122.4194);
 
-    expect(result).not.toBeNull();
-    expect(result!.city).toBe('San Francisco');
-    expect(result!.lat).toBe(37.7749);
-    expect(result!.lon).toBe(-122.4194);
+    expect(result.city).toBe('San Francisco');
+    expect(result.lat).toBe(37.7749);
+    expect(result.lon).toBe(-122.4194);
   });
 
   it('never calls the search method (wrong operation)', async () => {
-    nominatim.reverse.mockResolvedValue(null);
+    nominatim.reverse.mockResolvedValue({
+      lat: '10', lon: '20', display_name: 'Somewhere, Country',
+    });
 
     await service.reverse(10, 20);
 

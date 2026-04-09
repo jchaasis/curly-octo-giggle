@@ -29,7 +29,7 @@ export class GeocodeController {
   async reverse(
     @Query('lat') lat: string,
     @Query('lon') lon: string,
-  ): Promise<GeoResultDto | null> {
+  ): Promise<GeoResultDto> {
     const latNum = parseFloat(lat);
     const lonNum = parseFloat(lon);
 
