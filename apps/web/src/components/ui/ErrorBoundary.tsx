@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           )}
         >
           <p className="text-xs font-semibold uppercase tracking-widest text-white/40">
-            {this.props.panelName}
+            {this.props.panelName} — Data Unavailable
           </p>
           <p className="text-sm text-destructive">This panel encountered an error.</p>
           {this.state.error && (
