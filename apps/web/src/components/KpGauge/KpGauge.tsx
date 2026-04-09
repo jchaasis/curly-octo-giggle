@@ -56,9 +56,9 @@ export function KpGauge({ kp, label, isLoading, isError }: KpGaugeProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {/* SVG gauge */}
           <svg
-            viewBox="0 0 200 130"
+            viewBox="0 0 200 170"
             width="200"
-            height="130"
+            height="170"
             style={{ flexShrink: 0 }}
             role="meter"
             aria-valuenow={kp}
@@ -104,8 +104,8 @@ export function KpGauge({ kp, label, isLoading, isError }: KpGaugeProps) {
             {/* Hub */}
             <circle cx={CX} cy={CY} r={4} fill="white" opacity={0.9} />
             {/* Scale labels */}
-            <text x={6} y={CY + 16} fill="rgba(0,245,255,0.35)" fontSize="9" fontFamily="Share Tech Mono">0</text>
-            <text x={190} y={CY + 16} fill="rgba(0,245,255,0.35)" fontSize="9" fontFamily="Share Tech Mono" textAnchor="end">9</text>
+            <text x={6} y={CY + 55} fill="rgba(0,245,255,0.35)" fontSize="9" fontFamily="Share Tech Mono">0</text>
+            <text x={190} y={CY + 55} fill="rgba(0,245,255,0.35)" fontSize="9" fontFamily="Share Tech Mono" textAnchor="end">9</text>
           </svg>
 
           {/* KP info */}
