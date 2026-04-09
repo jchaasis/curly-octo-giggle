@@ -55,10 +55,7 @@ export class GeocodeService {
     }
 
     if (results.length === 0) {
-      throw new HttpException(
-        { error: `No results found for "${sanitized}"`, timestamp: new Date().toISOString() },
-        HttpStatus.NOT_FOUND,
-      );
+      this.logger.warn(`No geocoding results for query "${sanitized}"`);
     }
 
     return results.map(toGeoResultDto);
