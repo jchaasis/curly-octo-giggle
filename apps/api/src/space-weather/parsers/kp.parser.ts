@@ -14,18 +14,30 @@ function parseKpValue(raw: unknown): number | null {
 }
 
 // Primary endpoint: /products/noaa-planetary-k-index.json
-// Returns array-of-objects with a capital "Kp" field (numeric).
-interface PrimaryKpObject {
-  time_tag: string;
-  Kp: string | number;
-}
+// Returns array-of-arrays: first row is a string header, remaining rows are data.
+// Example: [["time_tag","Kp","Kp_index","station_count"], ["2024-01-01 00:00:00","2.33","2.67",13], ...]
 
-function isPrimaryKpObject(value: unknown): value is PrimaryKpObject {
-  if (typeof value !== 'object' || value === null) return false;
-  return (
-    typeof (value as Record<string, unknown>)['time_tag'] === 'string' &&
-    'Kp' in (value as Record<string, unknown>)
-  );
+function parsePrimaryKpRows(data: unknown[]): KpReading | null {
+  const [header, ...rows] = data;
+  if (!Array.isArray(header)) return null;
+
+  const timeIdx = header.findIndex((h) => h === 'time_tag');
+  const kpIdx = header.findIndex((h) => h === 'Kp');
+  if (timeIdx === -1 || kpIdx === -1) return null;
+
+  let latest: KpReading | null = null;
+
+  for (const row of rows) {
+    if (!Array.isArray(row)) continue;
+    const time_tag = row[timeIdx];
+    const rawKp = row[kpIdx];
+    if (typeof time_tag !== 'string') continue;
+    const kp = parseKpValue(rawKp);
+    if (kp === null) continue;
+    latest = { time_tag, kp, source: 'primary' };
+  }
+
+  return latest;
 }
 
 // Fallback endpoint: /json/planetary_k_index_1m.json
@@ -54,7 +66,7 @@ function isFallbackKpObject(value: unknown): value is FallbackKpObject {
  * The `source` parameter is the sole format discriminator — the parser trusts
  * the caller to know which endpoint the data came from.
  *
- * Primary format:  array-of-objects { time_tag, Kp, ... }
+ * Primary format:  array-of-arrays — first row is header, rest are data rows
  * Fallback format: array-of-objects { time_tag, kp_index, ... }
  */
 export function parseKp(
@@ -63,19 +75,12 @@ export function parseKp(
 ): KpReading | null {
   if (!Array.isArray(data) || data.length === 0) return null;
 
-  let latest: KpReading | null = null;
-
   if (source === 'primary') {
-    for (const item of data) {
-      if (!isPrimaryKpObject(item)) continue;
-      const kp = parseKpValue(item.Kp);
-      if (kp === null) continue;
-      latest = { time_tag: item.time_tag, kp, source: 'primary' };
-    }
-    return latest;
+    return parsePrimaryKpRows(data);
   }
 
   // source === 'fallback': array-of-objects with kp_index field
+  let latest: KpReading | null = null;
   for (const item of data) {
     if (!isFallbackKpObject(item)) continue;
     const kp = parseKpValue(item.kp_index);

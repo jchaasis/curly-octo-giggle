@@ -11,10 +11,42 @@ import { INoaaClient } from '../infrastructure/clients/noaa.client';
 // Fixtures — minimal raw data that the parsers accept
 // ---------------------------------------------------------------------------
 
-/** Valid primary Kp payload: array-of-objects with "Kp" field (matches /products/noaa-planetary-k-index.json) */
+/**
+ * Plasma array-of-arrays format accepted by parsePlasma.
+ * Column order: time_tag, density, speed, temperature, bt, bx_gse, by_gse, bz_gse, theta_gse, phi_gse
+ */
+function plasmaRow(
+  time_tag: string,
+  density: string | 'null',
+  speed: string | 'null',
+  temperature: string | 'null',
+): string[] {
+  return [time_tag, density, speed, temperature, '0', '0', '0', '0', '0', '0'];
+}
+
+const PLASMA_HEADER = [
+  'time_tag', 'density', 'speed', 'temperature',
+  'bt', 'bx_gse', 'by_gse', 'bz_gse', 'theta_gse', 'phi_gse',
+];
+
+/**
+ * Mag array-of-arrays format accepted by parseMag.
+ * Only time_tag is needed for the join; other fields can be zero.
+ */
+function magRow(time_tag: string): string[] {
+  return [time_tag, '0', '0', '0', '0', '0', '0', '0', '0', '0'];
+}
+
+const MAG_HEADER = [
+  'time_tag', 'bx_gse', 'by_gse', 'bz_gse', 'lon_gse', 'lat_gse',
+  'bx_gsm', 'by_gsm', 'bz_gsm', 'bt',
+];
+
+/** Valid primary Kp payload: array-of-arrays with header row (matches /products/noaa-planetary-k-index.json) */
 const PRIMARY_KP_PAYLOAD = [
-  { time_tag: '2024-01-01 00:00:00', Kp: 2.67 },
-  { time_tag: '2024-01-01 03:00:00', Kp: 3.5 },
+  ['time_tag', 'Kp', 'station_count'],
+  ['2024-01-01 00:00:00', '2.67', 13],
+  ['2024-01-01 03:00:00', '3.5', 13],
 ];
 
 /** Valid fallback Kp payload: array-of-objects with "kp_index" field (matches /json/planetary_k_index_1m.json) */
@@ -28,7 +60,8 @@ const EMPTY_KP_PAYLOAD: unknown[] = [];
 
 /** Array where all Kp values are invalid — parseKp('primary') returns null */
 const INVALID_KP_PAYLOAD = [
-  { time_tag: '2024-01-01 00:00:00', Kp: -1 }, // negative → rejected
+  ['time_tag', 'Kp', 'station_count'],
+  ['2024-01-01 00:00:00', '-1', 13], // negative → rejected
 ];
 
 // ---------------------------------------------------------------------------
@@ -42,6 +75,121 @@ function makeAxiosError(message: string): AxiosError {
 // ---------------------------------------------------------------------------
 // Test suite
 // ---------------------------------------------------------------------------
+
+describe('SpaceWeatherService — getSolarWind()', () => {
+  let service: SpaceWeatherService;
+  let noaaClient: jest.Mocked<INoaaClient>;
+  let cacheGet: jest.Mock;
+  let cacheSet: jest.Mock;
+
+  beforeEach(async () => {
+    cacheGet = jest.fn().mockResolvedValue(undefined);
+    cacheSet = jest.fn().mockResolvedValue(undefined);
+
+    const mockNoaaClient: jest.Mocked<INoaaClient> = {
+      getPlasma: jest.fn(),
+      getMag: jest.fn(),
+      getKpPrimary: jest.fn(),
+      getKpFallback: jest.fn(),
+      getFlares: jest.fn(),
+      getAlerts: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SpaceWeatherService,
+        { provide: NOAA_CLIENT, useValue: mockNoaaClient },
+        { provide: CACHE_MANAGER, useValue: { get: cacheGet, set: cacheSet } },
+      ],
+    }).compile();
+
+    service = module.get(SpaceWeatherService);
+    noaaClient = module.get(NOAA_CLIENT);
+  });
+
+  it('sets latest to null when all rows have a null temperature', async () => {
+    // speed and density are present but temperature is unavailable
+    noaaClient.getPlasma.mockResolvedValue([
+      PLASMA_HEADER,
+      plasmaRow('2024-01-01 00:00:00', '5.2', '450', 'null'),
+      plasmaRow('2024-01-01 00:01:00', '6.0', '460', 'null'),
+    ]);
+    noaaClient.getMag.mockResolvedValue([
+      MAG_HEADER,
+      magRow('2024-01-01 00:00:00'),
+      magRow('2024-01-01 00:01:00'),
+    ]);
+
+    const result = await service.getSolarWind();
+
+    expect(result.latest).toBeNull();
+  });
+
+  it('skips rows with null temperature and returns the most recent fully-populated row', async () => {
+    // Row at 00:02 has null temperature — latest must be the 00:01 row
+    noaaClient.getPlasma.mockResolvedValue([
+      PLASMA_HEADER,
+      plasmaRow('2024-01-01 00:00:00', '5.0', '440', '75000'),
+      plasmaRow('2024-01-01 00:01:00', '5.5', '450', '80000'),
+      plasmaRow('2024-01-01 00:02:00', '6.0', '460', 'null'),
+    ]);
+    noaaClient.getMag.mockResolvedValue([
+      MAG_HEADER,
+      magRow('2024-01-01 00:00:00'),
+      magRow('2024-01-01 00:01:00'),
+      magRow('2024-01-01 00:02:00'),
+    ]);
+
+    const result = await service.getSolarWind();
+
+    expect(result.latest).not.toBeNull();
+    expect(result.latest!.time_tag).toBe('2024-01-01 00:01:00');
+    expect(result.latest!.temperature).toBe(80000);
+  });
+
+  it('returns latest when the most recent row has all three values populated', async () => {
+    noaaClient.getPlasma.mockResolvedValue([
+      PLASMA_HEADER,
+      plasmaRow('2024-01-01 00:00:00', '5.0', '440', '75000'),
+      plasmaRow('2024-01-01 00:01:00', '5.5', '450', '80000'),
+    ]);
+    noaaClient.getMag.mockResolvedValue([
+      MAG_HEADER,
+      magRow('2024-01-01 00:00:00'),
+      magRow('2024-01-01 00:01:00'),
+    ]);
+
+    const result = await service.getSolarWind();
+
+    expect(result.latest!.time_tag).toBe('2024-01-01 00:01:00');
+    expect(result.latest!.speed).toBe(450);
+    expect(result.latest!.density).toBe(5.5);
+    expect(result.latest!.temperature).toBe(80000);
+  });
+
+  it('sets latest to null when the plasma-mag join produces no corroborated rows', async () => {
+    // Timestamps don't overlap → join is empty
+    noaaClient.getPlasma.mockResolvedValue([
+      PLASMA_HEADER,
+      plasmaRow('2024-01-01 00:00:00', '5.0', '440', '75000'),
+    ]);
+    noaaClient.getMag.mockResolvedValue([
+      MAG_HEADER,
+      magRow('2024-01-01 00:01:00'), // different timestamp
+    ]);
+
+    const result = await service.getSolarWind();
+
+    expect(result.latest).toBeNull();
+    expect(result.data).toHaveLength(0);
+  });
+
+  it('throws ServiceUnavailableException when the NOAA fetch fails', async () => {
+    noaaClient.getPlasma.mockRejectedValue(new Error('network'));
+
+    await expect(service.getSolarWind()).rejects.toThrow(ServiceUnavailableException);
+  });
+});
 
 describe('SpaceWeatherService — getKp()', () => {
   let service: SpaceWeatherService;
@@ -188,12 +336,91 @@ describe('SpaceWeatherService — getKp()', () => {
 
   it('attaches kp label G5 for out-of-range kp values (guard test)', async () => {
     // Inject a payload where the kp value is 9 (valid maximum)
-    const kp9Payload = [{ time_tag: '2024-01-01 00:00:00', Kp: 9 }];
+    const kp9Payload = [
+      ['time_tag', 'Kp', 'station_count'],
+      ['2024-01-01 00:00:00', '9', 13],
+    ];
     noaaClient.getKpPrimary.mockResolvedValue(kp9Payload);
 
     const result = await service.getKp();
 
     expect(result.kp).toBe(9);
     expect(result.label).toBe('G5 – Extreme');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Fixtures — minimal FlareDto-shaped objects
+// ---------------------------------------------------------------------------
+
+function flare(class_letter: string, end_time: string | null) {
+  return { begin_time: '2024-01-01T00:00:00Z', peak_time: null, end_time, class_letter, scale: `${class_letter}1.0`, linked_events: null };
+}
+
+describe('SpaceWeatherService — getFlares() activeClass', () => {
+  let service: SpaceWeatherService;
+  let noaaClient: jest.Mocked<INoaaClient>;
+
+  beforeEach(async () => {
+    const mockNoaaClient: jest.Mocked<INoaaClient> = {
+      getPlasma: jest.fn(),
+      getMag: jest.fn(),
+      getKpPrimary: jest.fn(),
+      getKpFallback: jest.fn(),
+      getFlares: jest.fn(),
+      getAlerts: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SpaceWeatherService,
+        { provide: NOAA_CLIENT, useValue: mockNoaaClient },
+        { provide: CACHE_MANAGER, useValue: { get: jest.fn().mockResolvedValue(undefined), set: jest.fn().mockResolvedValue(undefined) } },
+      ],
+    }).compile();
+
+    service = module.get(SpaceWeatherService);
+    noaaClient = module.get(NOAA_CLIENT);
+  });
+
+  it('returns null activeClass when only ended (historical) flares are present', async () => {
+    // X-class flare that has ended — must NOT elevate activeClass
+    noaaClient.getFlares.mockResolvedValue([flare('X', '2024-01-01T01:00:00Z')]);
+
+    const result = await service.getFlares();
+
+    expect(result.activeClass).toBeNull();
+  });
+
+  it('ignores ended high-class flares and uses the still-active lower-class flare', async () => {
+    // Historical X flare (ended) alongside an active M flare — activeClass must be M
+    noaaClient.getFlares.mockResolvedValue([
+      flare('X', '2024-01-01T01:00:00Z'),
+      flare('M', null),
+    ]);
+
+    const result = await service.getFlares();
+
+    expect(result.activeClass).toBe('M');
+  });
+
+  it('returns the highest class among multiple active flares', async () => {
+    noaaClient.getFlares.mockResolvedValue([
+      flare('B', null),
+      flare('X', null),
+      flare('M', null),
+    ]);
+
+    const result = await service.getFlares();
+
+    expect(result.activeClass).toBe('X');
+  });
+
+  it('returns null activeClass when no flares are present', async () => {
+    noaaClient.getFlares.mockResolvedValue([]);
+
+    const result = await service.getFlares();
+
+    expect(result.activeClass).toBeNull();
   });
 });

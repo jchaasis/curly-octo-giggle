@@ -94,11 +94,13 @@ export class SpaceWeatherService {
       );
     }
 
-    // Scan backwards for the most recent entry with usable speed and density.
-    // Entries where both are null are not useful as an operational "latest" reading.
+    // Scan backwards for the most recent entry where all three measurements are
+    // non-null. Partial rows (e.g. temperature still pending) are not suitable
+    // as an operational "latest" reading because downstream clients display all
+    // three values and the DTO contract requires all non-null values.
     let latest: SolarWindReadingDto | null = null;
     for (let i = data.length - 1; i >= 0; i--) {
-      if (data[i].speed !== null && data[i].density !== null) {
+      if (data[i].speed !== null && data[i].density !== null && data[i].temperature !== null) {
         latest = data[i];
         break;
       }
@@ -210,7 +212,7 @@ export class SpaceWeatherService {
   private highestFlareClass(flares: FlareDto[]): string | null {
     let highestIndex = -1;
 
-    for (const flare of flares) {
+    for (const flare of flares.filter((f) => f.end_time === null)) {
       const idx = FLARE_CLASS_ORDER.indexOf(
         flare.class_letter as (typeof FLARE_CLASS_ORDER)[number],
       );

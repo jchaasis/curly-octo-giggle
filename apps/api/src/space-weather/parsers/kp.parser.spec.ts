@@ -5,12 +5,16 @@ describe('parseKp', () => {
   // ── primary (array-of-objects, field: "Kp") ───────────────────────────────
   // Matches: /products/noaa-planetary-k-index.json
 
+  // Primary uses header + array-rows format:
+  // [["time_tag","Kp","Kp_index","station_count"], ["2024-01-01 00:00:00","2.33","2.67",13], ...]
+
   describe('primary source', () => {
     it('returns the last valid Kp reading', () => {
       const data = [
-        { time_tag: '2024-01-01 00:00:00', Kp: 2.33 },
-        { time_tag: '2024-01-01 03:00:00', Kp: 3.67 },
-        { time_tag: '2024-01-01 06:00:00', Kp: 4 },
+        ['time_tag', 'Kp', 'Kp_index', 'station_count'],
+        ['2024-01-01 00:00:00', '2.33', '2.67', 13],
+        ['2024-01-01 03:00:00', '3.67', '3.33', 13],
+        ['2024-01-01 06:00:00', '4', '4.33', 13],
       ];
 
       const result = parseKp(data, 'primary');
@@ -22,8 +26,11 @@ describe('parseKp', () => {
       });
     });
 
-    it('parses Kp values provided as strings (e.g. "3.67")', () => {
-      const data = [{ time_tag: '2024-01-01 00:00:00', Kp: '3.67' }];
+    it('parses Kp values provided as numbers', () => {
+      const data = [
+        ['time_tag', 'Kp', 'station_count'],
+        ['2024-01-01 00:00:00', 3.67, 13],
+      ];
       const result = parseKp(data, 'primary');
       expect(result?.kp).toBe(3.67);
       expect(result?.source).toBe('primary');
@@ -33,25 +40,23 @@ describe('parseKp', () => {
       expect(parseKp([], 'primary')).toBeNull();
     });
 
-    it('returns null when no valid objects are present', () => {
+    it('returns null when header row is missing', () => {
       expect(parseKp([null, 42, 'bad'], 'primary')).toBeNull();
     });
 
-    it('skips items missing the "Kp" field', () => {
+    it('returns null when header lacks "Kp" column', () => {
       const data = [
-        { time_tag: '2024-01-01 00:00:00' }, // missing Kp
-        { time_tag: '2024-01-01 03:00:00', Kp: 3 },
+        ['time_tag', 'station_count'],
+        ['2024-01-01 00:00:00', 13],
       ];
-      const result = parseKp(data, 'primary');
-      expect(result?.time_tag).toBe('2024-01-01 03:00:00');
-      expect(result?.kp).toBe(3);
-      expect(result?.source).toBe('primary');
+      expect(parseKp(data, 'primary')).toBeNull();
     });
 
-    it('skips Kp values that are unparseable (e.g. "N/A")', () => {
+    it('skips data rows with unparseable Kp values (e.g. "N/A")', () => {
       const data = [
-        { time_tag: '2024-01-01 00:00:00', Kp: 'N/A' },
-        { time_tag: '2024-01-01 03:00:00', Kp: 2 },
+        ['time_tag', 'Kp', 'station_count'],
+        ['2024-01-01 00:00:00', 'N/A', 13],
+        ['2024-01-01 03:00:00', '2', 13],
       ];
       const result = parseKp(data, 'primary');
       expect(result?.kp).toBe(2);
@@ -59,8 +64,9 @@ describe('parseKp', () => {
 
     it('skips Kp values that exceed the valid ceiling of 9', () => {
       const data = [
-        { time_tag: '2024-01-01 00:00:00', Kp: 999 },
-        { time_tag: '2024-01-01 03:00:00', Kp: 5 },
+        ['time_tag', 'Kp', 'station_count'],
+        ['2024-01-01 00:00:00', '999', 13],
+        ['2024-01-01 03:00:00', '5', 13],
       ];
       const result = parseKp(data, 'primary');
       expect(result?.kp).toBe(5);
