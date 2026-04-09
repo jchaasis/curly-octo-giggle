@@ -13,6 +13,7 @@ export class GeocodeController {
   @ApiQuery({ name: 'q', description: 'Place name or address to search', example: 'New York' })
   @ApiResponse({ status: 200, type: GeoResultDto, isArray: true, description: 'Matching locations (up to 5)' })
   @ApiResponse({ status: 400, description: 'Missing or empty query parameter' })
+  @ApiResponse({ status: 503, description: 'Geocoding service unavailable' })
   async search(@Query('q') q: string): Promise<GeoResultDto[]> {
     if (!q || !q.trim()) {
       throw new BadRequestException('Query parameter "q" is required');
@@ -24,8 +25,9 @@ export class GeocodeController {
   @ApiOperation({ summary: 'Reverse geocode coordinates to a place name' })
   @ApiQuery({ name: 'lat', description: 'Latitude in decimal degrees', example: 40.7128 })
   @ApiQuery({ name: 'lon', description: 'Longitude in decimal degrees', example: -74.006 })
-  @ApiResponse({ status: 200, type: GeoResultDto, description: 'Resolved location, or null if none found' })
+  @ApiResponse({ status: 200, type: GeoResultDto, description: 'Resolved location for the given coordinates' })
   @ApiResponse({ status: 400, description: 'Missing or invalid lat/lon parameters' })
+  @ApiResponse({ status: 503, description: 'Geocoding service unavailable' })
   async reverse(
     @Query('lat') lat: string,
     @Query('lon') lon: string,
