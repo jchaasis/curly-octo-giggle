@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
   displayName: string | null;
@@ -15,14 +14,6 @@ function formatUtcClock(date: Date): string {
   return `${hh}:${mm}:${ss} UTC`;
 }
 
-function formatLocalTime(date: Date): string {
-  return date.toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-}
-
 export function Header({ displayName, lastSyncedAt, onSync, onSwitchLocation }: HeaderProps) {
   const [now, setNow] = useState<Date>(() => new Date());
 
@@ -32,35 +23,112 @@ export function Header({ displayName, lastSyncedAt, onSync, onSwitchLocation }: 
   }, []);
 
   return (
-    <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-white/10 bg-black/30 backdrop-blur-sm">
-      <div className="flex flex-col">
-        <h1 className="text-2xl font-bold tracking-widest text-white">SOLARIS</h1>
-        <p className="text-xs text-white/40 tracking-wide">Space Weather Command Center</p>
+    <header style={{
+      position: 'relative',
+      zIndex: 10,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '13px 24px',
+      borderBottom: '1px solid var(--s-border)',
+      background: 'rgba(2,4,9,0.85)',
+      backdropFilter: 'blur(10px)',
+      flexShrink: 0,
+    }}>
+      {/* Logo */}
+      <div>
+        <div style={{
+          fontFamily: 'Orbitron, sans-serif',
+          fontSize: 18,
+          fontWeight: 900,
+          letterSpacing: '6px',
+          color: 'var(--s-cyan)',
+        }}>
+          SOLARIS
+        </div>
+        <div style={{ fontSize: 9, color: 'var(--s-tx2)', letterSpacing: '3px', marginTop: 2 }}>
+          SPACE WEATHER COMMAND
+        </div>
       </div>
 
-      <div className="flex flex-col items-start sm:items-end gap-1 text-xs text-white/40">
-        <span className="font-mono text-sm text-white/70">{formatUtcClock(now)}</span>
-        {displayName && (
-          <span>
-            Location:{' '}
-            <span className="text-white/60">{displayName}</span>
-          </span>
-        )}
-        <span>
-          Last synced:{' '}
-          <span className="text-white/60">
-            {lastSyncedAt ? formatLocalTime(lastSyncedAt) : '—'}
-          </span>
-        </span>
-      </div>
+      {/* Center: location */}
+      {displayName && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+          <span style={{ color: 'var(--s-cyan)', fontSize: 13 }}>◈</span>
+          <div>
+            <div style={{ color: 'var(--s-tx1)', letterSpacing: '1px', fontSize: 12 }}>
+              {displayName}
+            </div>
+            {lastSyncedAt && (
+              <div style={{ color: 'var(--s-tx2)', fontSize: 10 }}>
+                SYNCED {lastSyncedAt.toLocaleTimeString()}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={onSync}>
-          Sync
-        </Button>
-        <Button variant="secondary" size="sm" onClick={onSwitchLocation}>
-          Switch Location
-        </Button>
+      {/* Right: live dot + clock + buttons */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{
+          width: 7, height: 7,
+          borderRadius: '50%',
+          background: 'var(--s-green)',
+          boxShadow: '0 0 8px var(--s-green)',
+          animation: 'solaris-pulse 2s ease-in-out infinite',
+          flexShrink: 0,
+        }} />
+        <div style={{ fontSize: 11, color: 'var(--s-tx2)', letterSpacing: '1px' }}>
+          {formatUtcClock(now)}
+        </div>
+        <button
+          onClick={onSync}
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--s-border)',
+            color: 'var(--s-cyan)',
+            fontFamily: 'Share Tech Mono, monospace',
+            fontSize: 10,
+            letterSpacing: '2px',
+            padding: '5px 12px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'var(--s-cyan-12)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-cyan)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-border)';
+          }}
+        >
+          ↻ SYNC
+        </button>
+        <button
+          onClick={onSwitchLocation}
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--s-border)',
+            color: 'var(--s-tx2)',
+            fontFamily: 'Share Tech Mono, monospace',
+            fontSize: 10,
+            letterSpacing: '2px',
+            padding: '5px 12px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-cyan)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-cyan)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-border)';
+            (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-tx2)';
+          }}
+        >
+          ⊕ LOCATION
+        </button>
       </div>
     </header>
   );

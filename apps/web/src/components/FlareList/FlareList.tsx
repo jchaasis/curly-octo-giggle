@@ -1,5 +1,4 @@
 import type { Flare } from '@repo/shared';
-import { cn } from '@/lib/utils';
 
 interface FlareListProps {
   flares: Flare[];
@@ -10,73 +9,61 @@ interface FlareListProps {
 
 function formatTime(iso: string | null): string {
   if (!iso) return '—';
-  return new Date(iso).toUTCString().replace(' GMT', ' UTC');
+  const d = new Date(iso);
+  return d.toISOString().replace('T', ' ').substring(0, 16) + ' UTC';
 }
 
-function scaleBadgeColor(scale: string): string {
+function flareColor(scale: string): string {
   const letter = scale.charAt(0).toUpperCase();
-  if (letter === 'X') return 'bg-red-500/20 text-red-300 border-red-500/40';
-  if (letter === 'M') return 'bg-orange-500/20 text-orange-300 border-orange-500/40';
-  if (letter === 'C') return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40';
-  return 'bg-white/10 text-white/60 border-white/20';
+  if (letter === 'X') return 'var(--s-red)';
+  if (letter === 'M') return 'var(--s-orange)';
+  if (letter === 'C') return 'var(--s-yellow)';
+  return 'var(--s-tx2)';
 }
 
-export function FlareList({ flares, activeClass, isLoading, isError }: FlareListProps) {
+export function FlareList({ flares, activeClass: _activeClass, isLoading, isError }: FlareListProps) {
   return (
-    <div className="rounded-xl bg-white/5 border border-white/10 p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-          Solar Flares
-        </h2>
-        {activeClass && (
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">
-            Active: {activeClass}
-          </span>
-        )}
-      </div>
+    <div className="solaris-card" style={{ flex: 1 }}>
+      <div className="solaris-card-title">// SOLAR FLARES — 7-DAY HISTORY</div>
 
       {isError && !isLoading ? (
-        <p className="text-sm text-red-400/80">Failed to load flare data.</p>
+        <p style={{ fontSize: 11, color: 'var(--s-red)', letterSpacing: 1 }}>FAILED TO LOAD FLARE DATA</p>
       ) : isLoading ? (
-        <div className="flex flex-col gap-2">
-          {[0, 1, 2].map((i) => (
+        <p style={{ fontSize: 11, color: 'var(--s-tx2)', letterSpacing: 1 }}>LOADING FLARE DATA...</p>
+      ) : flares.length === 0 ? (
+        <p style={{ fontSize: 11, color: 'var(--s-tx2)', letterSpacing: 1, padding: '8px 0' }}>NO FLARES IN THE PAST 7 DAYS.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {flares.map((flare, idx) => (
             <div
-              key={i}
-              className="h-12 rounded-lg bg-white/5 animate-pulse"
-            />
+              key={`${flare.begin_time}-${idx}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '7px 0',
+                borderBottom: idx < flares.length - 1 ? '1px solid var(--s-border)' : 'none',
+                fontSize: 11,
+              }}
+            >
+              <span style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontWeight: 700,
+                fontSize: 13,
+                minWidth: 34,
+                color: flareColor(flare.scale),
+              }}>
+                {flare.scale}
+              </span>
+              <span style={{ color: 'var(--s-tx2)', fontSize: 10, flex: 1 }}>
+                {formatTime(flare.begin_time)}
+              </span>
+              <span style={{ color: 'var(--s-tx3)', fontSize: 10 }}>
+                {flare.peak_time ? formatTime(flare.peak_time) : 'IN PROGRESS'}
+              </span>
+            </div>
           ))}
         </div>
-      ) : flares.length === 0 ? (
-        <p className="text-sm text-white/40 py-2">No flares in the past 7 days.</p>
-      ) : (
-        <ul className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
-          {flares.map((flare, idx) => (
-            <li
-              key={`${flare.begin_time}-${idx}`}
-              className="flex flex-col gap-1 rounded-lg bg-white/5 border border-white/10 px-3 py-2"
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    'text-xs font-bold px-1.5 py-0.5 rounded border',
-                    scaleBadgeColor(flare.scale)
-                  )}
-                >
-                  {flare.scale}
-                </span>
-                <span className="text-xs text-white/40">
-                  Begin: {formatTime(flare.begin_time)}
-                </span>
-              </div>
-              <p className="text-xs text-white/50">
-                Peak:{' '}
-                {flare.peak_time ? formatTime(flare.peak_time) : (
-                  <span className="italic text-yellow-400/70">in progress</span>
-                )}
-              </p>
-            </li>
-          ))}
-        </ul>
       )}
     </div>
   );
