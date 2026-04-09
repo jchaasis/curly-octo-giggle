@@ -1,6 +1,8 @@
 import type { GeoResult } from '@repo/shared';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
+const _rawBase = import.meta.env.VITE_API_BASE_URL ?? '';
+const API_BASE =
+  _rawBase && !_rawBase.startsWith('http') ? `https://${_rawBase}` : _rawBase;
 
 async function apiFetch<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);

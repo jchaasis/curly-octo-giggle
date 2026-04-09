@@ -272,7 +272,53 @@
   color: var(--s-cyan);
 }
 
+/* ── Header layout ── */
+.solaris-header {
+  position: relative;
+  z-index: 10;
+  padding: 13px 24px;
+  border-bottom: 1px solid var(--s-border);
+  background: rgba(2,4,9,0.85);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.solaris-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.solaris-header-location-desktop {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 0;
+  justify-content: center;
+  padding: 0 12px;
+}
+.solaris-header-clock {
+  font-size: 11px;
+  color: var(--s-tx2);
+  letter-spacing: 1px;
+}
+.solaris-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Bottom row: hidden on desktop */
+.solaris-header-bottom {
+  display: none;
+}
+
 /* ── Layout classes ── */
+.solaris-shell {
+  height: 100vh;
+  overflow: hidden;
+}
 .solaris-main {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -315,6 +361,30 @@
   }
   .solaris-right-panel {
     overflow: visible;
+  }
+
+  /* Header mobile: hide desktop center location + clock, show bottom row */
+  .solaris-header { padding: 10px 16px; }
+  .solaris-header-location-desktop { display: none; }
+  .solaris-header-clock { display: none; }
+  .solaris-header-buttons {
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+  }
+  .solaris-header-buttons .solaris-btn {
+    text-align: center;
+    padding: 4px 10px;
+  }
+  .solaris-header-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--s-border);
+    min-width: 0;
+    gap: 12px;
   }
 }
 
