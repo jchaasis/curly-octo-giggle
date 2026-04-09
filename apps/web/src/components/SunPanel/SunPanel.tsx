@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react';
 
 interface SunPanelProps {
   activeClass: string | null | undefined;
@@ -72,7 +71,7 @@ export function SunPanel({ activeClass }: SunPanelProps) {
           animationDelay: '1.2s',
         }} />
 
-        {/* Sun core */}
+        {/* Sun core — flares are children so they share its glow context */}
         <div style={{
           position: 'relative',
           width: 96, height: 96,
@@ -81,57 +80,58 @@ export function SunPanel({ activeClass }: SunPanelProps) {
           boxShadow: '0 0 28px rgba(255,140,0,0.55), 0 0 56px rgba(255,80,0,0.3), 0 0 90px rgba(255,50,0,0.15)',
           animation: 'sun-breathe 4s ease-in-out infinite',
         }}>
-          {/* Flare tendrils — 4 compass points */}
-          {/* North */}
+          {/* North — vertical, pointing up */}
           <div style={{
             position: 'absolute',
-            width: 10, height: 28 * flareScale,
-            top: -(28 * flareScale - 2),
+            width: 10,
+            height: Math.round(28 * flareScale),
+            top: -Math.round(28 * flareScale) + 2,
             left: 43,
             borderRadius: '50% 50% 0 0',
-            background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
+            background: 'linear-gradient(to top, rgba(255,150,0,0.8), rgba(255,230,120,0.05))',
             transformOrigin: 'center bottom',
-            animation: 'flare-anim 5s ease-in-out infinite',
+            animation: 'flare-v 5s ease-in-out infinite',
+            animationDelay: '0s',
           }} />
-          {/* East */}
+          {/* South — vertical, pointing down */}
           <div style={{
             position: 'absolute',
-            width: 8, height: 20 * flareScale,
-            top: 9,
-            right: -(20 * flareScale - 2),
-            borderRadius: '50% 50% 0 0',
-            background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
-            transformOrigin: 'center bottom',
-            '--r': '90deg',
-            animation: 'flare-anim 5s ease-in-out infinite',
-            animationDelay: '1.5s',
-          } as CSSProperties} />
-          {/* South */}
-          <div style={{
-            position: 'absolute',
-            width: 9, height: 24 * flareScale,
-            bottom: -(24 * flareScale - 2),
+            width: 9,
+            height: Math.round(24 * flareScale),
+            bottom: -Math.round(24 * flareScale) + 2,
             left: 44,
-            borderRadius: '50% 50% 0 0',
-            background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
-            transformOrigin: 'center bottom',
-            '--r': '180deg',
-            animation: 'flare-anim 5s ease-in-out infinite',
+            borderRadius: '0 0 50% 50%',
+            background: 'linear-gradient(to bottom, rgba(255,150,0,0.8), rgba(255,230,120,0.05))',
+            transformOrigin: 'center top',
+            animation: 'flare-v 5s ease-in-out infinite',
             animationDelay: '3s',
-          } as CSSProperties} />
-          {/* West */}
+          }} />
+          {/* East — horizontal, pointing right; top centers the 8px thickness on the equator */}
           <div style={{
             position: 'absolute',
-            width: 7, height: 18 * flareScale,
-            top: 11,
-            left: -(18 * flareScale - 2),
-            borderRadius: '50% 50% 0 0',
-            background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
-            transformOrigin: 'center bottom',
-            '--r': '-90deg',
-            animation: 'flare-anim 5s ease-in-out infinite',
+            height: 8,
+            width: Math.round(20 * flareScale),
+            right: -Math.round(20 * flareScale) + 2,
+            top: 44,
+            borderRadius: '0 50% 50% 0',
+            background: 'linear-gradient(to right, rgba(255,150,0,0.8), rgba(255,230,120,0.05))',
+            transformOrigin: 'left center',
+            animation: 'flare-h 5s ease-in-out infinite',
+            animationDelay: '1.5s',
+          }} />
+          {/* West — horizontal, pointing left */}
+          <div style={{
+            position: 'absolute',
+            height: 7,
+            width: Math.round(18 * flareScale),
+            left: -Math.round(18 * flareScale) + 2,
+            top: 45,
+            borderRadius: '50% 0 0 50%',
+            background: 'linear-gradient(to left, rgba(255,150,0,0.8), rgba(255,230,120,0.05))',
+            transformOrigin: 'right center',
+            animation: 'flare-h 5s ease-in-out infinite',
             animationDelay: '4s',
-          } as CSSProperties} />
+          }} />
         </div>
       </div>
 
