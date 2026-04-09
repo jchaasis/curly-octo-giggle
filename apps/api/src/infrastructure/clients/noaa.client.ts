@@ -36,13 +36,13 @@ export class NoaaClient implements INoaaClient {
 
   async getKpFallback(): Promise<unknown> {
     const { data } = await this.http.get(
-      "/products/noaa-estimated-planetary-k-index-1-minute.json",
+      "/json/planetary_k_index_1m.json",
     );
     return data;
   }
 
   async getFlares(): Promise<unknown> {
-    const { data } = await this.http.get("/json/solar-geophysical-activity.json");
+    const { data } = await this.http.get("/json/goes/primary/xray-flares-7-day.json");
     return data;
   }
 
