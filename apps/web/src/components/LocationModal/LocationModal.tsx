@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { useLocation } from '@/hooks/useLocation';
 import { useLocationStore } from '@/stores/locationStore';
 import { searchCity } from '@/services/geocode';
-import { cn } from '@/lib/utils';
 import type { GeoResult } from '@repo/shared';
 
 export function LocationModal() {
@@ -18,20 +16,18 @@ export function LocationModal() {
   async function handleSearch() {
     const trimmed = query.trim();
     if (!trimmed) return;
-
     setLoading(true);
     setError(null);
     setResults([]);
-
     try {
       const found = await searchCity(trimmed);
       if (found.length === 0) {
-        setError('No results found. Try a different city name.');
+        setError('NO RESULTS FOUND. TRY A DIFFERENT CITY NAME.');
       } else {
         setResults(found);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Search failed. Please try again.');
+      setError(err instanceof Error ? err.message.toUpperCase() : 'SEARCH FAILED. PLEASE TRY AGAIN.');
     } finally {
       setLoading(false);
     }
@@ -42,7 +38,7 @@ export function LocationModal() {
     try {
       localStorage.setItem('solaris:location', JSON.stringify(result));
     } catch {
-      // localStorage may be unavailable
+      // localStorage unavailable
     }
   }
 
@@ -50,90 +46,123 @@ export function LocationModal() {
     setLoading(true);
     setError(null);
     setResults([]);
-
     try {
       await setByGPS();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Unable to get GPS location. Please search by city.',
+        err instanceof Error
+          ? err.message.toUpperCase()
+          : 'UNABLE TO GET GPS LOCATION.',
       );
     } finally {
       setLoading(false);
     }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter') {
-      void handleSearch();
-    }
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl border border-border bg-background p-8 shadow-2xl">
-        <h1 className="mb-1 text-2xl font-bold tracking-tight text-foreground">SOLARIS</h1>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Set your location to receive personalised space-weather data.
-        </p>
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 200,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'rgba(2,4,9,0.95)',
+      backdropFilter: 'blur(4px)',
+    }}>
+      <div style={{
+        background: 'var(--s-bg1)',
+        border: '1px solid var(--s-border2)',
+        padding: '40px 48px',
+        maxWidth: 480, width: '90%',
+        position: 'relative',
+      }}>
+        {/* Cyan top accent line */}
+        <div style={{
+          position: 'absolute', top: -1, left: 0, right: 0, height: 2,
+          background: 'linear-gradient(90deg, transparent, var(--s-cyan), transparent)',
+        }} />
 
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search city…"
-            disabled={loading}
-            className={cn(
-              'flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground',
-              'outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50',
-            )}
-          />
-          <Button onClick={() => void handleSearch()} disabled={loading || !query.trim()}>
-            {loading ? 'Searching…' : 'Search'}
-          </Button>
+        <div style={{
+          fontFamily: 'Orbitron, sans-serif',
+          fontSize: 28, fontWeight: 900,
+          letterSpacing: '8px',
+          color: 'var(--s-cyan)',
+          marginBottom: 6,
+        }}>
+          SOLARIS
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--s-tx2)', letterSpacing: '3px', marginBottom: 32 }}>
+          SPACE WEATHER COMMAND CENTER
         </div>
 
-        <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          <span>or</span>
-          <span className="h-px flex-1 bg-border" />
+        <div style={{ fontSize: 10, color: 'var(--s-cyan)', letterSpacing: '3px', marginBottom: 10 }}>
+          // ENTER YOUR LOCATION
         </div>
 
-        <Button
-          variant="outline"
-          className="w-full"
-          onClick={() => void handleGPS()}
+        <input
+          className="solaris-input"
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') void handleSearch(); }}
+          placeholder="City, State or Country"
           disabled={loading}
-        >
-          {loading ? 'Locating…' : 'Use GPS'}
-        </Button>
+          autoComplete="off"
+        />
 
-        {error && (
-          <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+        {/* Status message */}
+        {loading && (
+          <div style={{ fontSize: 11, color: 'var(--s-cyan)', marginTop: 10, animation: 'solaris-pulse 1s ease-in-out infinite', letterSpacing: '1px' }}>
+            ACQUIRING COORDINATES...
+          </div>
+        )}
+        {error && !loading && (
+          <div style={{ fontSize: 11, color: 'var(--s-red)', marginTop: 10, letterSpacing: '1px', minHeight: 16 }}>
             {error}
-          </p>
+          </div>
         )}
 
+        {/* Actions */}
+        <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+          <button
+            onClick={() => void handleSearch()}
+            disabled={loading || !query.trim()}
+            style={{
+              flex: 1,
+              background: 'var(--s-cyan)',
+              color: 'var(--s-bg)',
+              fontFamily: 'Orbitron, sans-serif',
+              fontWeight: 700,
+              fontSize: 11,
+              letterSpacing: '3px',
+              padding: 12,
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: (loading || !query.trim()) ? 0.5 : 1,
+              transition: 'opacity 0.2s',
+            }}
+          >
+            INITIALIZE
+          </button>
+          <button
+            className="solaris-btn solaris-btn--gps"
+            onClick={() => void handleGPS()}
+            disabled={loading}
+          >
+            ⊕ USE GPS
+          </button>
+        </div>
+
+        {/* Results */}
         {results.length > 0 && (
-          <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border">
+          <div style={{ marginTop: 16, borderTop: '1px solid var(--s-border)' }}>
             {results.map((r) => (
-              <li key={`${r.lat}-${r.lon}`}>
-                <button
-                  type="button"
-                  onClick={() => handleResultClick(r)}
-                  className={cn(
-                    'w-full px-4 py-3 text-left text-sm text-foreground',
-                    'hover:bg-muted focus-visible:bg-muted focus-visible:outline-none',
-                    'transition-colors',
-                  )}
-                >
-                  {r.displayName}
-                </button>
-              </li>
+              <button
+                key={`${r.lat}-${r.lon}`}
+                className="solaris-result-btn"
+                onClick={() => handleResultClick(r)}
+              >
+                {r.displayName}
+              </button>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

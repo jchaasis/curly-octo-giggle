@@ -1,4 +1,3 @@
-import { cn } from '@/lib/utils';
 import { getAuroraStatus } from '@/lib/aurora';
 
 interface AuroraCardProps {
@@ -8,76 +7,88 @@ interface AuroraCardProps {
   isError: boolean;
 }
 
-const TIER_COLORS: Record<number, string> = {
-  0: 'bg-white/10',
-  1: 'bg-blue-500/30',
-  2: 'bg-blue-500/50',
-  3: 'bg-teal-500/60',
-  4: 'bg-green-500/70',
-  5: 'bg-green-400/80',
-};
-
-const TIER_TEXT_COLORS: Record<number, string> = {
-  0: 'text-white/40',
-  1: 'text-blue-300',
-  2: 'text-blue-200',
-  3: 'text-teal-200',
-  4: 'text-green-200',
-  5: 'text-green-100',
-};
+function tierColor(tier: number): string {
+  if (tier >= 5) return 'var(--s-green)';
+  if (tier >= 4) return '#66ff99';
+  if (tier >= 3) return 'var(--s-cyan)';
+  if (tier >= 2) return 'var(--s-yellow)';
+  if (tier >= 1) return 'var(--s-orange)';
+  return 'var(--s-tx2)';
+}
 
 export function AuroraCard({ kp, latitude, isLoading, isError }: AuroraCardProps) {
   const hasData = kp !== undefined && latitude !== null;
   const status = hasData ? getAuroraStatus(kp, latitude) : null;
 
   return (
-    <div className="rounded-xl bg-white/5 border border-white/10 p-4 flex flex-col gap-3">
-      <div>
-        <h2 className="text-xs font-semibold text-white/40 uppercase tracking-widest">
-          Aurora Visibility
-        </h2>
-        <p className="text-xs text-white/30 mt-0.5">Aurora visibility for your location</p>
+    <div
+      style={{
+        border: '1px solid var(--s-border)',
+        padding: '14px 20px',
+        background: 'var(--s-cyan-06)',
+        width: '100%',
+        position: 'relative',
+      }}
+    >
+      {/* Left cyan accent */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0,
+        width: 2, height: '100%',
+        background: 'var(--s-cyan)',
+        opacity: 0.6,
+      }} />
+
+      <div style={{ fontSize: 9, color: 'var(--s-cyan)', letterSpacing: '3px', marginBottom: 10, textTransform: 'uppercase' }}>
+        // AURORA VISIBILITY — YOUR LOCATION
       </div>
 
       {isError && !isLoading ? (
-        <p className="text-sm text-red-400/80">Failed to load aurora data.</p>
+        <p style={{ fontSize: 11, color: 'var(--s-red)', letterSpacing: 1 }}>FAILED TO LOAD AURORA DATA</p>
       ) : isLoading ? (
-        <div className="flex flex-col gap-2">
-          <div className="h-5 w-24 rounded bg-white/10 animate-pulse" />
-          <div className="h-2 w-full rounded-full bg-white/10 animate-pulse" />
-        </div>
+        <p style={{ fontSize: 11, color: 'var(--s-tx2)', letterSpacing: 1 }}>LOADING...</p>
       ) : !hasData ? (
-        <p className="text-sm text-white/40">
-          {latitude === null
-            ? 'Set your location to see aurora visibility.'
-            : 'Waiting for Kp data...'}
+        <p style={{ fontSize: 11, color: 'var(--s-tx2)', letterSpacing: 1 }}>
+          {latitude === null ? 'SET LOCATION TO SEE VISIBILITY.' : 'AWAITING KP DATA...'}
         </p>
       ) : status !== null ? (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <span className={cn('text-sm font-semibold', TIER_TEXT_COLORS[status.tier])}>
-              {status.label}
-            </span>
-            <span className="text-xs text-white/40">
-              Tier {status.tier}/5
-            </span>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 8, color: 'var(--s-tx2)', letterSpacing: '2px', marginBottom: 3 }}>YOUR LATITUDE</div>
+              <div style={{ fontSize: 15, fontFamily: 'Orbitron, sans-serif', fontWeight: 700, color: 'var(--s-cyan)' }}>
+                {latitude.toFixed(1)}°
+              </div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 8, color: 'var(--s-tx2)', letterSpacing: '2px', marginBottom: 3 }}>CURRENT KP</div>
+              <div style={{ fontSize: 15, fontFamily: 'Orbitron, sans-serif', fontWeight: 700, color: 'var(--s-green)' }}>
+                {kp.toFixed(1)}
+              </div>
+            </div>
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-            <div
-              className={cn(
-                'h-full rounded-full transition-all duration-500',
-                TIER_COLORS[status.tier]
-              )}
-              style={{ width: `${status.progress * 100}%` }}
-            />
+          <div style={{ marginTop: 12, height: 4, background: 'var(--s-tx3)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{
+              height: '100%',
+              width: `${status.progress * 100}%`,
+              background: tierColor(status.tier),
+              borderRadius: 2,
+              transition: 'width 1s ease',
+            }} />
           </div>
 
-          <p className="text-xs text-white/30">
-            Kp {kp.toFixed(1)} at {latitude.toFixed(2)}° lat
-          </p>
-        </div>
+          <div style={{
+            fontSize: 9,
+            letterSpacing: '2px',
+            marginTop: 6,
+            fontWeight: 700,
+            color: tierColor(status.tier),
+            textTransform: 'uppercase',
+          }}>
+            {status.label}
+          </div>
+        </>
       ) : null}
     </div>
   );

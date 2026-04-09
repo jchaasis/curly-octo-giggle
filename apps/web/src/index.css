@@ -6,8 +6,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-heading: var(--font-display);
+    --font-display: 'Orbitron', sans-serif;
+    --font-sans: 'Share Tech Mono', 'Geist Variable', monospace;
+    --font-mono: 'Share Tech Mono', monospace;
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,82 +51,278 @@
 }
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    /* ── SOLARIS dark-space palette ── */
+    --s-bg:        #020409;
+    --s-bg1:       #060C18;
+    --s-bg2:       #0A1422;
+    --s-card:      rgba(8,16,30,0.9);
+    --s-cyan:      #00F5FF;
+    --s-cyan-12:   rgba(0,245,255,0.12);
+    --s-cyan-06:   rgba(0,245,255,0.06);
+    --s-border:    rgba(0,245,255,0.14);
+    --s-border2:   rgba(0,245,255,0.3);
+    --s-orange:    #FF6B00;
+    --s-red:       #FF3545;
+    --s-green:     #00FFA3;
+    --s-yellow:    #FFD700;
+    --s-purple:    #A855F7;
+    --s-tx1:       #C8E8F8;
+    --s-tx2:       #3D6880;
+    --s-tx3:       #1E3A4A;
+
+    /* ── shadcn / base-ui semantic tokens mapped to SOLARIS dark ── */
+    --background:           #020409;
+    --foreground:           #C8E8F8;
+    --card:                 rgba(8,16,30,0.9);
+    --card-foreground:      #C8E8F8;
+    --popover:              #060C18;
+    --popover-foreground:   #C8E8F8;
+    --primary:              #00F5FF;
+    --primary-foreground:   #020409;
+    --secondary:            rgba(0,245,255,0.12);
+    --secondary-foreground: #C8E8F8;
+    --muted:                rgba(0,245,255,0.06);
+    --muted-foreground:     #3D6880;
+    --accent:               rgba(0,245,255,0.12);
+    --accent-foreground:    #C8E8F8;
+    --destructive:          #FF3545;
+    --border:               rgba(0,245,255,0.14);
+    --input:                rgba(0,245,255,0.14);
+    --ring:                 rgba(0,245,255,0.4);
+    --chart-1:              #00F5FF;
+    --chart-2:              #FF6B00;
+    --chart-3:              #00FFA3;
+    --chart-4:              #FFD700;
+    --chart-5:              #A855F7;
+    --radius:               0.25rem;
+    --sidebar:              #060C18;
+    --sidebar-foreground:   #C8E8F8;
+    --sidebar-primary:      #00F5FF;
+    --sidebar-primary-foreground: #020409;
+    --sidebar-accent:       rgba(0,245,255,0.12);
+    --sidebar-accent-foreground: #C8E8F8;
+    --sidebar-border:       rgba(0,245,255,0.14);
+    --sidebar-ring:         rgba(0,245,255,0.4);
 }
 
-.dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-}
+/* SOLARIS is always dark — no light-mode override needed */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--s-bg);
+    color: var(--s-tx1);
+    font-family: 'Share Tech Mono', monospace;
+  }
   body {
-    @apply bg-background text-foreground;
-    }
-  html {
-    @apply font-sans;
-    }
+    position: relative;
+  }
+  /* Cyan grid overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    z-index: 0;
+    pointer-events: none;
+  }
+}
+
+/* ── SOLARIS keyframes ── */
+@keyframes ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%       { transform: scale(1.05); opacity: 0.2; }
+}
+@keyframes sun-breathe {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+@keyframes flare-anim {
+  0%, 100% { transform: scaleY(1) rotate(var(--r, 0deg)); opacity: 0.65; }
+  50%       { transform: scaleY(1.4) rotate(var(--r, 0deg)); opacity: 1; }
+}
+@keyframes ticker-scroll {
+  0%   { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+@keyframes flash-update {
+  0%   { box-shadow: inset 0 0 0 1px rgba(0,245,255,0.8), 0 0 24px rgba(0,245,255,0.3); }
+  100% { box-shadow: none; }
+}
+@keyframes solaris-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Utility classes ── */
+.flash-update {
+  animation: flash-update 0.7s ease-out forwards;
+}
+.solaris-card {
+  background: var(--s-card);
+  border-bottom: 1px solid var(--s-border);
+  position: relative;
+  padding: 16px 20px;
+  flex-shrink: 0;
+}
+.solaris-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: var(--s-cyan);
+  opacity: 0.4;
+}
+.solaris-card-title {
+  font-size: 9px;
+  color: var(--s-cyan);
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+  opacity: 0.85;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+}
+
+/* ── Interactive elements ── */
+.solaris-btn {
+  background: transparent;
+  border: 1px solid var(--s-border);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.solaris-btn--cyan {
+  color: var(--s-cyan);
+  font-size: 10px;
+  padding: 5px 12px;
+}
+.solaris-btn--cyan:hover:not(:disabled) {
+  background: var(--s-cyan-12);
+  border-color: var(--s-cyan);
+}
+.solaris-btn--outline {
+  color: var(--s-tx2);
+  font-size: 10px;
+  padding: 5px 12px;
+}
+.solaris-btn--outline:hover:not(:disabled) {
+  border-color: var(--s-cyan);
+  color: var(--s-cyan);
+}
+.solaris-btn--gps {
+  color: var(--s-tx2);
+  font-size: 11px;
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+.solaris-btn--gps:hover:not(:disabled) {
+  border-color: var(--s-cyan);
+  color: var(--s-cyan);
+}
+.solaris-btn--gps:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.solaris-input {
+  width: 100%;
+  background: var(--s-bg2);
+  border: 1px solid var(--s-border);
+  color: var(--s-tx1);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  padding: 12px 16px;
+  outline: none;
+  letter-spacing: 1px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.solaris-input:focus {
+  border-color: var(--s-cyan);
+}
+.solaris-result-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid var(--s-border);
+  background: transparent;
+  color: var(--s-tx1);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.solaris-result-btn:hover {
+  color: var(--s-cyan);
+}
+
+/* ── Layout classes ── */
+.solaris-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+.solaris-left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--s-border);
+  overflow: hidden;
+  gap: 20px;
+}
+.solaris-right-panel {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Responsive breakpoints ── */
+@media (max-width: 1024px) {
+  .solaris-main { grid-template-columns: 42% 1fr; }
+}
+
+@media (max-width: 768px) {
+  html, body { overflow: auto; height: auto; }
+  .solaris-shell { height: auto; overflow: visible; }
+  .solaris-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    overflow: visible;
+  }
+  .solaris-left-panel {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border-right: none;
+    border-bottom: 1px solid var(--s-border);
+    overflow: visible;
+  }
+  .solaris-right-panel {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 480px) {
+  .solaris-left-panel {
+    flex-direction: column;
+    align-items: center;
+  }
+  .solaris-card { padding: 12px 14px; }
+  .solaris-card-title { font-size: 8px; letter-spacing: 2px; }
 }
