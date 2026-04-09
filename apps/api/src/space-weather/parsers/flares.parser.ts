@@ -36,8 +36,13 @@ export function parseFlares(raw: unknown): Flare[] {
     const scale = scaleRaw.trim();
     const class_letter = scale.charAt(0).toUpperCase();
 
+    // NOAA uses 'peak_time' or 'max_time' depending on the endpoint.
     const peak_time =
-      typeof r['peak_time'] === 'string' ? r['peak_time'] : null;
+      typeof r['peak_time'] === 'string'
+        ? r['peak_time']
+        : typeof r['max_time'] === 'string'
+          ? r['max_time']
+          : null;
     const end_time =
       typeof r['end_time'] === 'string' ? r['end_time'] : null;
 

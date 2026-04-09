@@ -13,12 +13,29 @@ function parseKpValue(raw: unknown): number | null {
   return n;
 }
 
-interface KpObject {
+// Primary endpoint: /products/noaa-planetary-k-index.json
+// Returns array-of-objects with a capital "Kp" field (numeric).
+interface PrimaryKpObject {
+  time_tag: string;
+  Kp: string | number;
+}
+
+function isPrimaryKpObject(value: unknown): value is PrimaryKpObject {
+  if (typeof value !== 'object' || value === null) return false;
+  return (
+    typeof (value as Record<string, unknown>)['time_tag'] === 'string' &&
+    'Kp' in (value as Record<string, unknown>)
+  );
+}
+
+// Fallback endpoint: /json/planetary_k_index_1m.json
+// Returns array-of-objects with a lowercase "kp_index" field.
+interface FallbackKpObject {
   time_tag: string;
   kp_index: string | number;
 }
 
-function isKpObject(value: unknown): value is KpObject {
+function isFallbackKpObject(value: unknown): value is FallbackKpObject {
   if (typeof value !== 'object' || value === null) return false;
   return (
     typeof (value as Record<string, unknown>)['time_tag'] === 'string' &&
@@ -36,6 +53,9 @@ function isKpObject(value: unknown): value is KpObject {
  *
  * The `source` parameter is the sole format discriminator — the parser trusts
  * the caller to know which endpoint the data came from.
+ *
+ * Primary format:  array-of-objects { time_tag, Kp, ... }
+ * Fallback format: array-of-objects { time_tag, kp_index, ... }
  */
 export function parseKp(
   data: unknown,
@@ -43,44 +63,24 @@ export function parseKp(
 ): KpReading | null {
   if (!Array.isArray(data) || data.length === 0) return null;
 
-  if (source === 'primary') {
-    // array-of-objects
-    let latest: KpReading | null = null;
+  let latest: KpReading | null = null;
 
+  if (source === 'primary') {
     for (const item of data) {
-      if (!isKpObject(item)) continue;
-      const kp = parseKpValue(item.kp_index);
+      if (!isPrimaryKpObject(item)) continue;
+      const kp = parseKpValue(item.Kp);
       if (kp === null) continue;
       latest = { time_tag: item.time_tag, kp, source: 'primary' };
     }
-
     return latest;
   }
 
-  // source === 'fallback': array-of-arrays with a dynamic header row
-  if (!Array.isArray(data[0])) return null;
-
-  const header = data[0] as unknown[];
-  const kpColIndex = header.findIndex(
-    (h) => typeof h === 'string' && h.trim() === 'Kp',
-  );
-  if (kpColIndex === -1) return null;
-
-  const TIME_TAG_COL = 0;
-  let latest: KpReading | null = null;
-
-  // Skip the header row (index 0).
-  for (let i = 1; i < data.length; i++) {
-    const row = data[i];
-    if (!Array.isArray(row)) continue;
-    const timeTag = row[TIME_TAG_COL];
-    if (typeof timeTag !== 'string' || timeTag === '') continue;
-
-    const kp = parseKpValue(row[kpColIndex]);
+  // source === 'fallback': array-of-objects with kp_index field
+  for (const item of data) {
+    if (!isFallbackKpObject(item)) continue;
+    const kp = parseKpValue(item.kp_index);
     if (kp === null) continue;
-
-    latest = { time_tag: timeTag, kp, source: 'fallback' };
+    latest = { time_tag: item.time_tag, kp, source: 'fallback' };
   }
-
   return latest;
 }
