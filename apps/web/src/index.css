@@ -299,6 +299,7 @@
 
 @media (max-width: 768px) {
   html, body { overflow: auto; height: auto; }
+  .solaris-shell { height: auto; overflow: visible; }
   .solaris-main {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;

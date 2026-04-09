@@ -50,8 +50,8 @@ export default function App() {
       {/* Fixed starfield behind everything */}
       <StarfieldCanvas />
 
-      {/* App shell — full viewport, no scroll at shell level */}
-      <div style={{
+      {/* App shell — full viewport on desktop, natural height on mobile */}
+      <div className="solaris-shell" style={{
         position: 'relative',
         zIndex: 1,
         height: '100vh',
