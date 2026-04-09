@@ -423,4 +423,87 @@ describe('SpaceWeatherService — getFlares() activeClass', () => {
 
     expect(result.activeClass).toBeNull();
   });
+
+  it('sorts flares by peak_time descending (most recent first)', async () => {
+    // Pass raw objects with explicit peak_time values so parseFlares picks them up.
+    // The flare() fixture always sets peak_time: null; we construct these directly.
+    noaaClient.getFlares.mockResolvedValue([
+      { begin_time: '2024-01-01T00:00:00Z', peak_time: '2024-01-01T01:00:00Z', end_time: '2024-01-01T02:00:00Z', scale: 'C1.0' },
+      { begin_time: '2024-01-01T02:30:00Z', peak_time: '2024-01-01T03:00:00Z', end_time: '2024-01-01T04:00:00Z', scale: 'M2.0' },
+      { begin_time: '2024-01-01T01:30:00Z', peak_time: '2024-01-01T02:00:00Z', end_time: '2024-01-01T03:00:00Z', scale: 'B5.0' },
+    ]);
+
+    const result = await service.getFlares();
+
+    expect(result.flares[0].peak_time).toBe('2024-01-01T03:00:00Z');
+    expect(result.flares[1].peak_time).toBe('2024-01-01T02:00:00Z');
+    expect(result.flares[2].peak_time).toBe('2024-01-01T01:00:00Z');
+  });
+
+  it('floats active flares (no peak_time) to the top of the sorted list', async () => {
+    noaaClient.getFlares.mockResolvedValue([
+      { begin_time: '2024-01-01T00:00:00Z', peak_time: '2024-01-01T01:00:00Z', end_time: '2024-01-01T02:00:00Z', scale: 'C1.0' },
+      { begin_time: '2024-01-01T03:00:00Z', peak_time: null, end_time: null, scale: 'X1.5' },  // active
+    ]);
+
+    const result = await service.getFlares();
+
+    expect(result.flares[0].peak_time).toBeNull();  // active flare first
+    expect(result.flares[1].peak_time).toBe('2024-01-01T01:00:00Z');
+  });
+});
+
+describe('SpaceWeatherService — getAlerts()', () => {
+  let service: SpaceWeatherService;
+  let noaaClient: jest.Mocked<INoaaClient>;
+
+  beforeEach(async () => {
+    const mockNoaaClient: jest.Mocked<INoaaClient> = {
+      getPlasma: jest.fn(),
+      getMag: jest.fn(),
+      getKpPrimary: jest.fn(),
+      getKpFallback: jest.fn(),
+      getFlares: jest.fn(),
+      getAlerts: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        SpaceWeatherService,
+        { provide: NOAA_CLIENT, useValue: mockNoaaClient },
+        { provide: CACHE_MANAGER, useValue: { get: jest.fn().mockResolvedValue(undefined), set: jest.fn().mockResolvedValue(undefined) } },
+      ],
+    }).compile();
+
+    service = module.get(SpaceWeatherService);
+    noaaClient = module.get(NOAA_CLIENT);
+  });
+
+  it('returns empty alerts array (not an error) when NOAA returns no active alerts', async () => {
+    noaaClient.getAlerts.mockResolvedValue([]);
+
+    const result = await service.getAlerts();
+
+    expect(result.alerts).toEqual([]);
+    expect(result.cachedAt).toBeTruthy();
+  });
+
+  it('returns parsed alerts when NOAA returns alert objects', async () => {
+    noaaClient.getAlerts.mockResolvedValue([
+      { issue_time: '2024-01-01T00:00:00Z', product_id: 'WATA50', message: 'Test alert body' },
+      { issue_time: '2024-01-01T01:00:00Z', product_id: 'ALTK04', message: 'Another alert' },
+    ]);
+
+    const result = await service.getAlerts();
+
+    expect(result.alerts).toHaveLength(2);
+    expect(result.alerts[0].product_id).toBe('WATA50');
+    expect(result.alerts[1].product_id).toBe('ALTK04');
+  });
+
+  it('throws ServiceUnavailableException when the NOAA fetch fails', async () => {
+    noaaClient.getAlerts.mockRejectedValue(new Error('network'));
+
+    await expect(service.getAlerts()).rejects.toThrow(ServiceUnavailableException);
+  });
 });

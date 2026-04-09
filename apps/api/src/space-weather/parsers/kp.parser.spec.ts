@@ -52,6 +52,16 @@ describe('parseKp', () => {
       expect(parseKp(data, 'primary')).toBeNull();
     });
 
+    it('returns null when all data rows have N/A Kp values', () => {
+      const data = [
+        ['time_tag', 'Kp', 'station_count'],
+        ['2024-01-01 00:00:00', 'N/A', 13],
+        ['2024-01-01 03:00:00', 'N/A', 13],
+        ['2024-01-01 06:00:00', 'N/A', 13],
+      ];
+      expect(parseKp(data, 'primary')).toBeNull();
+    });
+
     it('skips data rows with unparseable Kp values (e.g. "N/A")', () => {
       const data = [
         ['time_tag', 'Kp', 'station_count'],

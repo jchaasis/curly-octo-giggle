@@ -174,7 +174,14 @@ export class SpaceWeatherService {
       throw new ServiceUnavailableException('Flares data unavailable');
     }
 
-    const flares = parseFlares(raw) as FlareDto[];
+    // Sort flares by peak_time descending (most recent first).
+    // Flares with no peak_time (still active) float to the top.
+    const flares = (parseFlares(raw) as FlareDto[]).sort((a, b) => {
+      if (!a.peak_time && !b.peak_time) return 0;
+      if (!a.peak_time) return -1;
+      if (!b.peak_time) return 1;
+      return b.peak_time.localeCompare(a.peak_time);
+    });
     const activeClass = this.highestFlareClass(flares);
 
     const result: FlaresResponseDto = {

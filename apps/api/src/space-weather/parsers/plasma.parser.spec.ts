@@ -75,6 +75,30 @@ describe('parsePlasma', () => {
   // ── array-of-objects ───────────────────────────────────────────────────────
 
   describe('array-of-objects format', () => {
+    it('coerces null field values to null (does not skip the row)', () => {
+      const data = [
+        { time_tag: '2024-01-01 00:00:00', speed: null, density: null, temperature: null },
+      ];
+      const result = parsePlasma(data);
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual<SolarWind>({
+        time_tag: '2024-01-01 00:00:00',
+        speed: null,
+        density: null,
+        temperature: null,
+      });
+    });
+
+    it('maps speed→speed, density→density, temperature→temperature (not transposed)', () => {
+      const data = [
+        { time_tag: '2024-01-01 00:00:00', speed: '500', density: '7.5', temperature: '100000' },
+      ];
+      const result = parsePlasma(data);
+      expect(result[0].speed).toBe(500);
+      expect(result[0].density).toBe(7.5);
+      expect(result[0].temperature).toBe(100000);
+    });
+
     it('parses objects with string numeric values', () => {
       const data = [
         { time_tag: '2024-01-01 00:00:00', speed: '450', density: '5.2', temperature: '80000' },
