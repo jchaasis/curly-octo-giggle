@@ -55,6 +55,9 @@ export function useLocation(): UseLocationResult {
 
     const { latitude, longitude } = position.coords;
     const result = await reverseGeocode(latitude, longitude);
+    if (result === null) {
+      throw new Error('No location found for your current coordinates.');
+    }
     setLocation({ lat: result.lat, lon: result.lon, displayName: result.displayName });
     persist(result);
   }, [setLocation]);
