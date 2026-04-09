@@ -97,6 +97,7 @@ export function LocationModal() {
         </div>
 
         <input
+          className="solaris-input"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -104,20 +105,6 @@ export function LocationModal() {
           placeholder="City, State or Country"
           disabled={loading}
           autoComplete="off"
-          style={{
-            width: '100%',
-            background: 'var(--s-bg2)',
-            border: '1px solid var(--s-border)',
-            color: 'var(--s-tx1)',
-            fontFamily: 'Share Tech Mono, monospace',
-            fontSize: 14,
-            padding: '12px 16px',
-            outline: 'none',
-            letterSpacing: '1px',
-            boxSizing: 'border-box',
-          }}
-          onFocus={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = 'var(--s-cyan)'; }}
-          onBlur={(e) => { (e.currentTarget as HTMLInputElement).style.borderColor = 'var(--s-border)'; }}
         />
 
         {/* Status message */}
@@ -155,31 +142,9 @@ export function LocationModal() {
             INITIALIZE
           </button>
           <button
+            className="solaris-btn solaris-btn--gps"
             onClick={() => void handleGPS()}
             disabled={loading}
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--s-border)',
-              color: 'var(--s-tx2)',
-              fontFamily: 'Share Tech Mono, monospace',
-              fontSize: 11,
-              letterSpacing: '2px',
-              padding: '12px 16px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all 0.2s',
-              opacity: loading ? 0.5 : 1,
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-cyan)';
-                (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-cyan)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-border)';
-              (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-tx2)';
-            }}
           >
             ⊕ USE GPS
           </button>
@@ -191,27 +156,8 @@ export function LocationModal() {
             {results.map((r) => (
               <button
                 key={`${r.lat}-${r.lon}`}
+                className="solaris-result-btn"
                 onClick={() => handleResultClick(r)}
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  textAlign: 'left',
-                  padding: '10px 0',
-                  borderBottom: '1px solid var(--s-border)',
-                  background: 'transparent',
-                  border: 'none',
-                  borderBottomColor: 'var(--s-border)',
-                  borderBottomWidth: 1,
-                  borderBottomStyle: 'solid',
-                  color: 'var(--s-tx1)',
-                  fontFamily: 'Share Tech Mono, monospace',
-                  fontSize: 12,
-                  letterSpacing: '1px',
-                  cursor: 'pointer',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-cyan)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-tx1)'; }}
               >
                 {r.displayName}
               </button>

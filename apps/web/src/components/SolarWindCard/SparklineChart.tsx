@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 interface SparklineChartProps {
   readings: number[];
@@ -7,7 +7,7 @@ interface SparklineChartProps {
 export function SparklineChart({ readings }: SparklineChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  function draw() {
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -59,17 +59,14 @@ export function SparklineChart({ readings }: SparklineChartProps) {
     ctx.strokeStyle = '#00F5FF';
     ctx.lineWidth = 1.5;
     ctx.stroke();
-  }
+  }, [readings]);
 
   useEffect(() => {
     draw();
-  });
-
-  useEffect(() => {
     const handleResize = () => draw();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [draw]);
 
   return (
     <canvas

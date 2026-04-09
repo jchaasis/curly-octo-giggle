@@ -1,3 +1,5 @@
+import type { CSSProperties } from 'react';
+
 interface SunPanelProps {
   activeClass: string | null | undefined;
 }
@@ -100,10 +102,10 @@ export function SunPanel({ activeClass }: SunPanelProps) {
             borderRadius: '50% 50% 0 0',
             background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
             transformOrigin: 'center bottom',
-            transform: 'rotate(90deg)',
+            '--r': '90deg',
             animation: 'flare-anim 5s ease-in-out infinite',
             animationDelay: '1.5s',
-          }} />
+          } as CSSProperties} />
           {/* South */}
           <div style={{
             position: 'absolute',
@@ -113,10 +115,10 @@ export function SunPanel({ activeClass }: SunPanelProps) {
             borderRadius: '50% 50% 0 0',
             background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
             transformOrigin: 'center bottom',
-            transform: 'rotate(180deg)',
+            '--r': '180deg',
             animation: 'flare-anim 5s ease-in-out infinite',
             animationDelay: '3s',
-          }} />
+          } as CSSProperties} />
           {/* West */}
           <div style={{
             position: 'absolute',
@@ -126,10 +128,10 @@ export function SunPanel({ activeClass }: SunPanelProps) {
             borderRadius: '50% 50% 0 0',
             background: 'linear-gradient(to top, rgba(255,150,0,0.65), rgba(255,230,120,0.05))',
             transformOrigin: 'center bottom',
-            transform: 'rotate(-90deg)',
+            '--r': '-90deg',
             animation: 'flare-anim 5s ease-in-out infinite',
             animationDelay: '4s',
-          }} />
+          } as CSSProperties} />
         </div>
       </div>
 

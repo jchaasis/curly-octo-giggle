@@ -81,52 +81,10 @@ export function Header({ displayName, lastSyncedAt, onSync, onSwitchLocation }: 
         <div style={{ fontSize: 11, color: 'var(--s-tx2)', letterSpacing: '1px' }}>
           {formatUtcClock(now)}
         </div>
-        <button
-          onClick={onSync}
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--s-border)',
-            color: 'var(--s-cyan)',
-            fontFamily: 'Share Tech Mono, monospace',
-            fontSize: 10,
-            letterSpacing: '2px',
-            padding: '5px 12px',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'var(--s-cyan-12)';
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-cyan)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-border)';
-          }}
-        >
+        <button className="solaris-btn solaris-btn--cyan" onClick={onSync}>
           ↻ SYNC
         </button>
-        <button
-          onClick={onSwitchLocation}
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--s-border)',
-            color: 'var(--s-tx2)',
-            fontFamily: 'Share Tech Mono, monospace',
-            fontSize: 10,
-            letterSpacing: '2px',
-            padding: '5px 12px',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-cyan)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-cyan)';
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--s-border)';
-            (e.currentTarget as HTMLButtonElement).style.color = 'var(--s-tx2)';
-          }}
-        >
+        <button className="solaris-btn solaris-btn--outline" onClick={onSwitchLocation}>
           ⊕ LOCATION
         </button>
       </div>

@@ -196,39 +196,132 @@
   text-transform: uppercase;
 }
 
+/* ── Interactive elements ── */
+.solaris-btn {
+  background: transparent;
+  border: 1px solid var(--s-border);
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.solaris-btn--cyan {
+  color: var(--s-cyan);
+  font-size: 10px;
+  padding: 5px 12px;
+}
+.solaris-btn--cyan:hover:not(:disabled) {
+  background: var(--s-cyan-12);
+  border-color: var(--s-cyan);
+}
+.solaris-btn--outline {
+  color: var(--s-tx2);
+  font-size: 10px;
+  padding: 5px 12px;
+}
+.solaris-btn--outline:hover:not(:disabled) {
+  border-color: var(--s-cyan);
+  color: var(--s-cyan);
+}
+.solaris-btn--gps {
+  color: var(--s-tx2);
+  font-size: 11px;
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+.solaris-btn--gps:hover:not(:disabled) {
+  border-color: var(--s-cyan);
+  color: var(--s-cyan);
+}
+.solaris-btn--gps:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.solaris-input {
+  width: 100%;
+  background: var(--s-bg2);
+  border: 1px solid var(--s-border);
+  color: var(--s-tx1);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  padding: 12px 16px;
+  outline: none;
+  letter-spacing: 1px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.solaris-input:focus {
+  border-color: var(--s-cyan);
+}
+.solaris-result-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 0;
+  border: none;
+  border-bottom: 1px solid var(--s-border);
+  background: transparent;
+  color: var(--s-tx1);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.solaris-result-btn:hover {
+  color: var(--s-cyan);
+}
+
+/* ── Layout classes ── */
+.solaris-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+.solaris-left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--s-border);
+  overflow: hidden;
+  gap: 20px;
+}
+.solaris-right-panel {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* ── Responsive breakpoints ── */
 @media (max-width: 1024px) {
-  main { grid-template-columns: 42% 1fr !important; }
+  .solaris-main { grid-template-columns: 42% 1fr; }
 }
 
 @media (max-width: 768px) {
-  html, body { overflow: auto !important; height: auto !important; }
-  main {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto auto !important;
-    overflow: visible !important;
+  html, body { overflow: auto; height: auto; }
+  .solaris-main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    overflow: visible;
   }
-  /* Left panel: horizontal on tablet-mobile */
-  main > div:first-child {
-    flex-direction: row !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    border-right: none !important;
-    border-bottom: 1px solid var(--s-border) !important;
-    gap: 20px !important;
-    overflow: visible !important;
+  .solaris-left-panel {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    border-right: none;
+    border-bottom: 1px solid var(--s-border);
+    overflow: visible;
   }
-  main > div:last-child {
-    overflow: visible !important;
+  .solaris-right-panel {
+    overflow: visible;
   }
 }
 
 @media (max-width: 480px) {
-  /* Left panel: vertical column on mobile */
-  main > div:first-child {
-    flex-direction: column !important;
-    align-items: center !important;
+  .solaris-left-panel {
+    flex-direction: column;
+    align-items: center;
   }
-  .solaris-card { padding: 12px 14px !important; }
-  .solaris-card-title { font-size: 8px !important; letter-spacing: 2px !important; }
+  .solaris-card { padding: 12px 14px; }
+  .solaris-card-title { font-size: 8px; letter-spacing: 2px; }
 }

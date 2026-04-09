@@ -69,25 +69,9 @@ export default function App() {
         </ErrorBoundary>
 
         {/* Two-column main area */}
-        <main style={{
-          flex: 1,
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          minHeight: 0,
-          overflow: 'hidden',
-        }}>
+        <main className="solaris-main" style={{ flex: 1, minHeight: 0 }}>
           {/* LEFT — sun + aurora, centered, no scroll */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-            borderRight: '1px solid var(--s-border)',
-            overflow: 'hidden',
-            position: 'relative',
-            gap: 20,
-          }}>
+          <div className="solaris-left-panel" style={{ padding: 20, position: 'relative' }}>
             {/* Radial glow behind sun */}
             <div style={{
               position: 'absolute',
@@ -113,12 +97,7 @@ export default function App() {
           </div>
 
           {/* RIGHT — data cards, scrollable */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-          }}>
+          <div className="solaris-right-panel" style={{ display: 'flex', flexDirection: 'column' }}>
             <ErrorBoundary panelName="Solar Wind">
               <Suspense fallback={<SkeletonRow />}>
                 <SolarWindCardContainer />

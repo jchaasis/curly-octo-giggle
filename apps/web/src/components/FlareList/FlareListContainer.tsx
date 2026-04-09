@@ -18,7 +18,6 @@ export function FlareListContainer() {
   return (
     <FlareList
       flares={sorted}
-      activeClass={flares?.activeClass ?? null}
       isLoading={isLoading}
       isError={isError}
     />

@@ -2,7 +2,6 @@ import type { Flare } from '@repo/shared';
 
 interface FlareListProps {
   flares: Flare[];
-  activeClass: string | null;
   isLoading: boolean;
   isError: boolean;
 }
@@ -21,7 +20,7 @@ function flareColor(scale: string): string {
   return 'var(--s-tx2)';
 }
 
-export function FlareList({ flares, activeClass: _activeClass, isLoading, isError }: FlareListProps) {
+export function FlareList({ flares, isLoading, isError }: FlareListProps) {
   return (
     <div className="solaris-card" style={{ flex: 1 }}>
       <div className="solaris-card-title">// SOLAR FLARES — 7-DAY HISTORY</div>
