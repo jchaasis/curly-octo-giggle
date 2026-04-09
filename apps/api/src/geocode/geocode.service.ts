@@ -73,10 +73,8 @@ export class GeocodeService {
     }
 
     if (!result) {
-      throw new HttpException(
-        { error: `No location found for coordinates ${lat},${lon}`, timestamp: new Date().toISOString() },
-        HttpStatus.NOT_FOUND,
-      );
+      this.logger.warn(`Reverse geocode returned no result for lat=${lat} lon=${lon}`);
+      return null;    
     }
 
     return toGeoResultDto(result);

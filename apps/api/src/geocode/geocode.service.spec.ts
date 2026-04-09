@@ -96,12 +96,12 @@ describe('GeocodeService — search()', () => {
     expect(results).toHaveLength(2);
   });
 
-  it('throws HttpException 404 when Nominatim returns no matches', async () => {
+  it('does not throw HttpException 404 when Nominatim returns no matches', async () => {
     nominatim.search.mockResolvedValue([]);
 
-    const err = await service.search('xkzqjwpv').catch((e) => e);
-    expect(err).toBeInstanceOf(HttpException);
-    expect(err.getStatus()).toBe(HttpStatus.NOT_FOUND);
+    const results = await service.search('xkzqjwpv');
+    expect(results).toEqual([]);
+
   });
 
   it('throws HttpException 503 on Nominatim network failure', async () => {
@@ -134,12 +134,11 @@ describe('GeocodeService — reverse()', () => {
     nominatim = module.get(NOMINATIM_CLIENT);
   });
 
-  it('throws HttpException 404 when Nominatim returns null (no result for coordinates)', async () => {
+  it('does not throw HttpException 404 when Nominatim returns null (no result for coordinates)', async () => {
     nominatim.reverse.mockResolvedValue(null);
 
-    const err = await service.reverse(0, 0).catch((e) => e);
-    expect(err).toBeInstanceOf(HttpException);
-    expect(err.getStatus()).toBe(HttpStatus.NOT_FOUND);
+    const result = await service.reverse(0, 0).catch((e) => e);
+    expect(result).toEqual(null);
   });
 
   it('throws HttpException 503 on Nominatim network failure', async () => {
