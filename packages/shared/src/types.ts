@@ -37,3 +37,42 @@ export interface GeoLocation {
   longitude: number;
   displayName: string;
 }
+
+// ---------------------------------------------------------------------------
+// API response envelopes — returned by the NestJS backend and consumed by the
+// React frontend. Kept here so both sides share the same shape without
+// importing from each other.
+// ---------------------------------------------------------------------------
+
+export interface SolarWindResponse {
+  data: SolarWind[];
+  latest: SolarWind | null;
+  cachedAt: string;
+}
+
+export interface KpResponse {
+  kp: number;
+  label: string;
+  source: 'primary' | 'fallback';
+  time_tag: string;
+  cachedAt: string;
+}
+
+export interface FlaresResponse {
+  flares: Flare[];
+  activeClass: string | null;
+  cachedAt: string;
+}
+
+export interface AlertsResponse {
+  alerts: Alert[];
+  cachedAt: string;
+}
+
+/** Shape returned by GET /api/geocode/search and GET /api/geocode/reverse */
+export interface GeoResult {
+  city: string;
+  lat: number;
+  lon: number;
+  displayName: string;
+}
