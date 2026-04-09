@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 interface SunPanelProps {
-  activeClass: string | null;
+  activeClass: string | null | undefined;
 }
 
 function getClassLetter(activeClass: string | null): string {
@@ -23,9 +23,12 @@ function getBadgeColor(letter: string): string {
 }
 
 export function SunPanel({ activeClass }: SunPanelProps) {
-  const letter = getClassLetter(activeClass);
-  const badgeLabel = activeClass ?? 'A';
-  const badgeColor = getBadgeColor(letter);
+  const isUnknown = activeClass === undefined;
+  const letter = isUnknown ? '?' : getClassLetter(activeClass);
+  const badgeLabel = isUnknown ? '—' : (activeClass ?? 'A');
+  const badgeColor = isUnknown
+    ? 'bg-white/10 text-white/40 border-white/20'
+    : getBadgeColor(letter);
 
   return (
     <div className="relative rounded-lg border border-white/10 bg-white/5 p-6 flex flex-col items-center justify-center min-h-[200px] overflow-hidden">
