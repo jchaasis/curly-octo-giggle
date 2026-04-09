@@ -5,9 +5,7 @@ import type {
   AlertsResponse,
 } from '@repo/shared';
 
-const _rawBase = import.meta.env.VITE_API_BASE_URL ?? '';
-const API_BASE =
-  _rawBase && !_rawBase.startsWith('http') ? `https://${_rawBase}` : _rawBase;
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 async function apiFetch<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`);
