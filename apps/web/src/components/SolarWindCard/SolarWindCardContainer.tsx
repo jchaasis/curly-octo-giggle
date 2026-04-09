@@ -15,7 +15,7 @@ export function SolarWindCardContainer() {
       speed={latest?.speed ?? null}
       density={latest?.density ?? null}
       temperature={latest?.temperature ?? null}
-      {/* TODO: Bz (GSM) requires a dedicated magnetic field endpoint — not included in SolarWindResponse */}
+      // {/* TODO: Bz (GSM) requires a dedicated magnetic field endpoint — not included in SolarWindResponse */}
       bz={null}
       speedHistory={speedHistory}
       isLoading={isLoading}
