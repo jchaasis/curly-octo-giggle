@@ -1,6 +1,6 @@
 import { Suspense, useEffect } from 'react';
 import { useLocationStore } from '@/stores/locationStore';
-import { readPersistedLocation } from '@/hooks/useLocation';
+import { readPersistedLocation, useLocation } from '@/hooks/useLocation';
 import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 import { LocationModal } from '@/components/LocationModal/LocationModal';
 import { Header } from '@/components/Header/Header';
@@ -17,7 +17,8 @@ function SkeletonCard() {
 }
 
 export default function App() {
-  const { lat, lon, displayName, setLocation, clearLocation } = useLocationStore();
+  const { setLocation } = useLocationStore();
+  const { lat, lon, displayName, clearLocation } = useLocation();
   const { lastSyncedAt, triggerSync } = useAutoRefresh();
 
   useEffect(() => {
