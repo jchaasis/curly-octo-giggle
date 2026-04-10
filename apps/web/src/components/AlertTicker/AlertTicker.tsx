@@ -9,7 +9,7 @@ interface AlertTickerProps {
 function buildTickerText(alerts: Alert[]): string {
   if (alerts.length === 0) return 'NO ACTIVE SPACE WEATHER ALERTS — MONITORING NOMINAL — DATA SOURCE: NOAA SWPC';
   return alerts
-    .map((a) => `${a.product_id}: ${a.message.replace(/\n/g, ' ').substring(0, 120)}`)
+    .map((a) => `${a.product_id}: ${a.message.replace(/\n/g, ' ')}`)
     .join('   ◈   ');
 }
 
