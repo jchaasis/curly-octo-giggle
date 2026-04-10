@@ -47,7 +47,6 @@ export interface GeoLocation {
 export interface SolarWindResponse {
   data: SolarWind[];
   latest: SolarWind | null;
-  cachedAt: string;
 }
 
 export interface KpResponse {
@@ -55,18 +54,15 @@ export interface KpResponse {
   label: string;
   source: 'primary' | 'fallback';
   time_tag: string;
-  cachedAt: string;
 }
 
 export interface FlaresResponse {
   flares: Flare[];
   activeClass: string | null;
-  cachedAt: string;
 }
 
 export interface AlertsResponse {
   alerts: Alert[];
-  cachedAt: string;
 }
 
 /** Shape returned by GET /api/geocode/search and GET /api/geocode/reverse */

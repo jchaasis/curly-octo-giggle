@@ -10,12 +10,12 @@ export function useAutoRefresh(): UseAutoRefreshResult {
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const spaceWeather = useSpaceWeather();
 
-  // Update lastSyncedAt whenever the kp cachedAt timestamp changes — this is
+  // Update lastSyncedAt whenever React Query's dataUpdatedAt changes — this is
   // our signal that all queries have completed a successful fetch cycle.
-  const cachedAt = spaceWeather.kp?.cachedAt;
+  const { dataUpdatedAt } = spaceWeather;
   useEffect(() => {
-    if (cachedAt) setLastSyncedAt(new Date(cachedAt));
-  }, [cachedAt]);
+    if (dataUpdatedAt) setLastSyncedAt(new Date(dataUpdatedAt));
+  }, [dataUpdatedAt]);
 
   const triggerSync = useCallback(() => {
     spaceWeather.refetch();

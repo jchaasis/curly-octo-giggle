@@ -22,6 +22,15 @@ function SkeletonRow() {
   );
 }
 
+function SkeletonBlock({ height }: { height: number }) {
+  return (
+    <div style={{ padding: '14px 20px', border: '1px solid var(--s-border)', marginBottom: 8 }}>
+      <div style={{ height: 8, width: 100, background: 'var(--s-tx3)', marginBottom: 12, animation: 'solaris-pulse 1.5s ease-in-out infinite' }} />
+      <div style={{ height, background: 'var(--s-tx3)', animation: 'solaris-pulse 1.5s ease-in-out infinite' }} />
+    </div>
+  );
+}
+
 export default function App() {
   const { setLocation } = useLocationStore();
   const { lat, lon, displayName, clearLocation } = useLocation();
@@ -82,13 +91,13 @@ export default function App() {
             }} />
 
             <ErrorBoundary panelName="Sun">
-              <Suspense fallback={null}>
+              <Suspense fallback={<SkeletonBlock height={160} />}>
                 <SunPanelContainer />
               </Suspense>
             </ErrorBoundary>
 
             <ErrorBoundary panelName="Aurora">
-              <Suspense fallback={null}>
+              <Suspense fallback={<SkeletonBlock height={80} />}>
                 <AuroraCardContainer />
               </Suspense>
             </ErrorBoundary>
