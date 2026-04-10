@@ -7,15 +7,15 @@ To learn about Space Weather data, visit the NOAA website [here](https://www.swp
 ## Prerequisites
 
 - **Node.js** 22 LTS or later
-- **pnpm** 10 or later (`npm install -g pnpm`) [or another supported method](https://pnpm.io/installation)
+- **pnpm** 10 or later (`npm install -g pnpm`) [other install options](https://pnpm.io/installation)
 
 ## Setup
 
 ```bash
-# 1. Install all dependencies
+# 1. Install all dependencies (from project root)
 pnpm install
 
-# 2. Start both apps in parallel (web :3000, api :4000)
+# 2. Start both apps in parallel (web :3000, api :4000) (from project root)
 pnpm dev
 ```
 
