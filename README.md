@@ -7,7 +7,7 @@ To learn about Space Weather data, visit the NOAA website [here](https://www.swp
 ## Prerequisites
 
 - **Node.js** 22 LTS or later
-- **pnpm** 10 or later (`npm install -g pnpm`)
+- **pnpm** 10 or later (`npm install -g pnpm`) [or another supported method](https://pnpm.io/installation)
 
 ## Setup
 
