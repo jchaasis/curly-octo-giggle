@@ -74,11 +74,19 @@ export function Header({ displayName, lastSyncedAt, onSync, onSwitchLocation }: 
           </div>
           <div className="solaris-header-buttons">
             <button className="solaris-btn solaris-btn--cyan" onClick={onSync}>
-              ↻ SYNC
+              REFRESH
             </button>
             <button className="solaris-btn solaris-btn--outline" onClick={onSwitchLocation}>
-              ⊕ LOCATION
+              CHANGE LOCATION
             </button>
+            <a
+              href="https://www.swpc.noaa.gov/about-space-weather"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="solaris-btn solaris-btn--outline"
+            >
+              ABOUT SPACE WEATHER
+            </a>
           </div>
         </div>
       </div>

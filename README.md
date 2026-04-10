@@ -2,6 +2,8 @@
 
 A real-time space weather dashboard displaying solar wind, Kp index, solar flares, and NOAA alerts for a user-selected location. Aurora visibility is calculated from live Kp data and the user's latitude.
 
+To learn about Space Weather data, visit the NOAA website [here](https://www.swpc.noaa.gov/about-space-weather)
+
 ## Prerequisites
 
 - **Node.js** 22 LTS or later
