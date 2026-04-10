@@ -1,4 +1,5 @@
 import { SolarWind } from '@repo/shared';
+import { toNullableNumber } from './parse-utils';
 
 // NOAA array-of-arrays column order for the plasma/solar wind endpoint.
 // Index 0 is time_tag (after skipping the header row).
@@ -24,12 +25,6 @@ function isPlasmaObject(value: unknown): value is PlasmaObject {
   );
 }
 
-// Returns null for unparseable or NOAA sentinel values (e.g. "N/A", "-9999.9", "").
-// Callers must treat null as "measurement unavailable", not zero.
-function toNullableNumber(value: unknown): number | null {
-  const n = parseFloat(String(value));
-  return isNaN(n) ? null : n;
-}
 
 export function parsePlasma(data: unknown): SolarWind[] {
   if (!Array.isArray(data) || data.length === 0) return [];

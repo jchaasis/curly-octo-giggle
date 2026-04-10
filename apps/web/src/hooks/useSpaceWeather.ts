@@ -39,6 +39,7 @@ export function useSpaceWeather(): SpaceWeatherData {
     alerts: alertsQ.data,
     isLoading,
     isError,
+    // Kp drives the refresh indicator — it's the primary signal for current conditions.
     dataUpdatedAt: kpQ.dataUpdatedAt,
     refetch,
   };

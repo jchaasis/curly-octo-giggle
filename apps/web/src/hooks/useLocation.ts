@@ -9,7 +9,9 @@ export interface UseLocationResult {
   lat: number | null;
   lon: number | null;
   displayName: string | null;
-  setByCity: (q: string) => Promise<GeoResult[]>;
+  // Searches for the query and immediately commits the first result to the location store.
+  // Returns all candidates so the UI can present alternatives for the user to choose from.
+  searchAndSetCity: (query: string) => Promise<GeoResult[]>;
   setByGPS: () => Promise<void>;
   clearLocation: () => void;
 }
@@ -35,8 +37,8 @@ export function readPersistedLocation(): GeoResult | null {
 export function useLocation(): UseLocationResult {
   const { lat, lon, displayName, setLocation, clearLocation } = useLocationStore();
 
-  const setByCity = useCallback(async (q: string): Promise<GeoResult[]> => {
-    const results = await searchCity(q);
+  const searchAndSetCity = useCallback(async (query: string): Promise<GeoResult[]> => {
+    const results = await searchCity(query);
     if (results.length > 0) {
       const first = results[0];
       setLocation({ lat: first.lat, lon: first.lon, displayName: first.displayName });
@@ -71,5 +73,5 @@ export function useLocation(): UseLocationResult {
     }
   }, [clearLocation]);
 
-  return { lat, lon, displayName, setByCity, setByGPS, clearLocation: clear };
+  return { lat, lon, displayName, searchAndSetCity, setByGPS, clearLocation: clear };
 }

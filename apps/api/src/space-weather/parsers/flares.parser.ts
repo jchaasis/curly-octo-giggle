@@ -22,7 +22,7 @@ export function parseFlares(raw: unknown): Flare[] {
     if (!begin_time) continue;
 
     // NOAA uses 'class', 'scale', or 'max_class' depending on endpoint.
-    const scaleRaw =
+    const rawClassString =
       typeof r['class'] === 'string'
         ? r['class']
         : typeof r['scale'] === 'string'
@@ -31,10 +31,10 @@ export function parseFlares(raw: unknown): Flare[] {
             ? r['max_class']
             : null;
 
-    if (!scaleRaw || scaleRaw.trim() === '') continue;
+    if (!rawClassString || rawClassString.trim() === '') continue;
 
-    const scale = scaleRaw.trim();
-    const class_letter = scale.charAt(0).toUpperCase();
+    const classString = rawClassString.trim();
+    const class_letter = classString.charAt(0).toUpperCase();
 
     // NOAA uses 'peak_time' or 'max_time' depending on the endpoint.
     const peak_time =
@@ -53,7 +53,7 @@ export function parseFlares(raw: unknown): Flare[] {
       ? (r['linked_events'] as unknown[]).map((e) => String(e))
       : null;
 
-    flares.push({ begin_time, peak_time, end_time, class_letter, scale, linked_events });
+    flares.push({ begin_time, peak_time, end_time, class_letter, scale: classString, linked_events });
   }
 
   return flares;

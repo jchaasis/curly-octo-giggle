@@ -1,6 +1,6 @@
 import { Component } from 'react';
 import type { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { getClassName } from '@/lib/utils';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         <div
-          className={cn(
+          className={getClassName(
             'rounded-lg border border-white/10 bg-white/5 p-4',
             'flex flex-col gap-2',
           )}

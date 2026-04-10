@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 
+// Inner padding in pixels applied to all four edges of the canvas drawing area.
+const PADDING = 4;
+
 interface SparklineChartProps {
   readings: number[];
 }
@@ -13,24 +16,24 @@ export function SparklineChart({ readings }: SparklineChartProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const w = canvas.offsetWidth;
-    const h = canvas.offsetHeight;
-    canvas.width = w;
-    canvas.height = h;
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+    canvas.width = width;
+    canvas.height = height;
 
     if (readings.length < 2) return;
 
     const min = Math.min(...readings);
     const max = Math.max(...readings);
     const range = max - min || 1;
-    const pad = 4;
 
-    const xStep = (w - pad * 2) / (readings.length - 1);
-    const yScale = (h - pad * 2) / range;
+    const xStep = (width - PADDING * 2) / (readings.length - 1);
+    // Canvas Y=0 is the top edge; subtract to flip so higher values render higher on screen.
+    const yScale = (height - PADDING * 2) / range;
 
     const points = readings.map((v, i) => ({
-      x: pad + i * xStep,
-      y: h - pad - (v - min) * yScale,
+      x: PADDING + i * xStep,
+      y: height - PADDING - (v - min) * yScale,
     }));
 
     // Gradient fill
@@ -44,8 +47,8 @@ export function SparklineChart({ readings }: SparklineChartProps) {
       ctx.lineTo(points[i].x, points[i].y);
     }
     // Close fill path to bottom
-    ctx.lineTo(points[points.length - 1].x, h);
-    ctx.lineTo(points[0].x, h);
+    ctx.lineTo(points[points.length - 1].x, height);
+    ctx.lineTo(points[0].x, height);
     ctx.closePath();
     ctx.fillStyle = gradient;
     ctx.fill();
