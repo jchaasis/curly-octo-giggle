@@ -37,8 +37,8 @@ export class GeocodeService {
     @Inject(NOMINATIM_CLIENT) private readonly nominatim: INominatimClient,
   ) {}
 
-  async search(q: string): Promise<GeoResultDto[]> {
-    const sanitized = sanitize(q);
+  async search(query: string): Promise<GeoResultDto[]> {
+    const sanitized = sanitize(query);
 
     if (!sanitized) {
       return [];
@@ -61,7 +61,7 @@ export class GeocodeService {
     return results.map(toGeoResultDto);
   }
 
-  async reverse(lat: number, lon: number): Promise<GeoResultDto> {
+  async reverse(lat: number, lon: number): Promise<GeoResultDto | null> {
     let result: Awaited<ReturnType<typeof this.nominatim.reverse>>;
     try {
       result = await this.nominatim.reverse(lat, lon);

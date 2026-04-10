@@ -165,7 +165,7 @@ export class SpaceWeatherService {
       if (!b.peak_time) return 1;
       return b.peak_time.localeCompare(a.peak_time);
     });
-    const activeClass = this.highestFlareClass(flares);
+    const activeClass = this.highestActiveFlareClass(flares);
 
     const result: FlaresResponseDto = {
       flares,
@@ -195,7 +195,7 @@ export class SpaceWeatherService {
     return result;
   }
 
-  private highestFlareClass(flares: FlareDto[]): string | null {
+  private highestActiveFlareClass(flares: FlareDto[]): string | null {
     let highestIndex = -1;
 
     for (const flare of flares.filter((f) => f.end_time === null)) {

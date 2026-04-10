@@ -1,4 +1,5 @@
 import { MagReading } from '@repo/shared';
+import { toNullableNumber } from './parse-utils';
 
 // NOAA magnetometer array format includes both GSE and GSM columns.
 // We use the GSM (Geocentric Solar Magnetospheric) frame for bz, as it is the
@@ -18,12 +19,6 @@ function isMagObject(value: unknown): value is MagObject {
   );
 }
 
-// Returns null for unparseable or NOAA sentinel values (e.g. "N/A", "-9999.9", "").
-// Callers must treat null as "measurement unavailable", not zero.
-function toNullableNumber(value: unknown): number | null {
-  const n = parseFloat(String(value));
-  return isNaN(n) ? null : n;
-}
 
 export function parseMag(data: unknown): MagReading[] {
   if (!Array.isArray(data) || data.length === 0) return [];
