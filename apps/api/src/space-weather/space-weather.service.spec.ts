@@ -31,10 +31,10 @@ const PLASMA_HEADER = [
 
 /**
  * Mag array-of-arrays format accepted by parseMag.
- * Only time_tag is needed for the join; other fields can be zero.
+ * Column order matches MAG_HEADER; bz_gsm is at index 8.
  */
-function magRow(time_tag: string): string[] {
-  return [time_tag, '0', '0', '0', '0', '0', '0', '0', '0', '0'];
+function magRow(time_tag: string, bz_gsm = '0'): string[] {
+  return [time_tag, '0', '0', '0', '0', '0', '0', '0', bz_gsm, '0'];
 }
 
 const MAG_HEADER = [
@@ -159,6 +159,42 @@ describe('SpaceWeatherService — getSolarWind()', () => {
     expect(result.latest!.speed).toBe(450);
     expect(result.latest!.density).toBe(5.5);
     expect(result.latest!.temperature).toBe(80000);
+    expect(result.latest!.bz).toBe(0); // mag fixture uses default bz_gsm='0'
+  });
+
+  it('propagates bz from the mag feed onto each joined data row and latest', async () => {
+    noaaClient.getPlasma.mockResolvedValue([
+      PLASMA_HEADER,
+      plasmaRow('2024-01-01 00:00:00', '5.0', '440', '75000'),
+      plasmaRow('2024-01-01 00:01:00', '5.5', '450', '80000'),
+    ]);
+    noaaClient.getMag.mockResolvedValue([
+      MAG_HEADER,
+      magRow('2024-01-01 00:00:00', '3.1'),
+      magRow('2024-01-01 00:01:00', '-5.2'),
+    ]);
+
+    const result = await service.getSolarWind();
+
+    expect(result.data[0].bz).toBeCloseTo(3.1);
+    expect(result.data[1].bz).toBeCloseTo(-5.2);
+    expect(result.latest!.bz).toBeCloseTo(-5.2);
+  });
+
+  it('sets bz to null on latest when the mag feed has no parseable value', async () => {
+    noaaClient.getPlasma.mockResolvedValue([
+      PLASMA_HEADER,
+      plasmaRow('2024-01-01 00:00:00', '5.0', '440', '75000'),
+    ]);
+    noaaClient.getMag.mockResolvedValue([
+      MAG_HEADER,
+      magRow('2024-01-01 00:00:00', 'N/A'), // sentinel → toNullableNumber returns null
+    ]);
+
+    const result = await service.getSolarWind();
+
+    expect(result.latest).not.toBeNull();
+    expect(result.latest!.bz).toBeNull();
   });
 
   it('sets latest to null when the plasma-mag join produces no corroborated rows', async () => {

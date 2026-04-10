@@ -34,6 +34,15 @@ export class SolarWindReadingDto implements SolarWind {
     type: Number,
   })
   temperature: number | null;
+
+  @ApiProperty({
+    description: 'Interplanetary magnetic field Bz component in the GSM frame, in nanotesla (nT). Negative values indicate southward orientation, which drives geomagnetic storms.',
+    example: -5.2,
+    nullable: true,
+    required: false,
+    type: Number,
+  })
+  bz: number | null;
 }
 
 export class SolarWindResponseDto {

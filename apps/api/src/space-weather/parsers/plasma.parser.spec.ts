@@ -33,12 +33,14 @@ describe('parsePlasma', () => {
         density: 5.2,
         speed: 450,
         temperature: 80000,
+        bz: null,
       });
       expect(result[1]).toEqual<SolarWind>({
         time_tag: '2024-01-01 00:01:00',
         density: 6.0,
         speed: 460,
         temperature: 82000,
+        bz: null,
       });
     });
 
@@ -68,6 +70,7 @@ describe('parsePlasma', () => {
         density: null,
         speed: null,
         temperature: null,
+        bz: null,
       });
     });
   });
@@ -86,6 +89,7 @@ describe('parsePlasma', () => {
         speed: null,
         density: null,
         temperature: null,
+        bz: null,
       });
     });
 
@@ -113,12 +117,14 @@ describe('parsePlasma', () => {
         speed: 450,
         density: 5.2,
         temperature: 80000,
+        bz: null,
       });
       expect(result[1]).toEqual<SolarWind>({
         time_tag: '2024-01-01 00:01:00',
         speed: 460,
         density: 6.0,
         temperature: 82000,
+        bz: null,
       });
     });
 

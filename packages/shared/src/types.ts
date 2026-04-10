@@ -3,6 +3,7 @@ export interface SolarWind {
   speed: number | null;
   density: number | null;
   temperature: number | null;
+  bz: number | null;
 }
 
 export interface MagReading {
