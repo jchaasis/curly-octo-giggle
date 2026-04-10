@@ -37,7 +37,7 @@ export function SparklineChart({ readings }: SparklineChartProps) {
     }));
 
     // Gradient fill
-    const gradient = ctx.createLinearGradient(0, 0, 0, h);
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
     gradient.addColorStop(0, 'rgba(0,245,255,0.25)');
     gradient.addColorStop(1, 'rgba(0,245,255,0)');
 
