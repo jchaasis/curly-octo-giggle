@@ -29,9 +29,4 @@ export class AlertsResponseDto {
   })
   alerts: AlertDto[];
 
-  @ApiProperty({
-    description: 'ISO 8601 timestamp recording when this response was last cached',
-    example: '2024-03-15T12:05:00Z',
-  })
-  cachedAt: string;
 }

@@ -1,6 +1,4 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 import { AxiosError } from 'axios';
 
 import { NOAA_CLIENT } from '../infrastructure/clients/client.tokens';
@@ -16,21 +14,6 @@ import { SolarWindReadingDto, SolarWindResponseDto } from './dto/solar-wind.dto'
 import { KpResponseDto } from './dto/kp.dto';
 import { FlareDto, FlaresResponseDto } from './dto/flares.dto';
 import { AlertsResponseDto } from './dto/alerts.dto';
-
-// Per-endpoint cache TTLs in milliseconds (cache-manager v7 uses ms).
-const TTL = {
-  SOLAR_WIND: 60_000,   // DSCOVR updates ~every minute
-  KP: 180_000,          // Kp updates every 3 minutes
-  FLARES: 300_000,
-  ALERTS: 300_000,
-} as const;
-
-const CACHE_KEYS = {
-  SOLAR_WIND: 'space-weather:solar-wind',
-  KP: 'space-weather:kp',
-  FLARES: 'space-weather:flares',
-  ALERTS: 'space-weather:alerts',
-} as const;
 
 const KP_LABEL_MAP: Record<number, string> = {
   5: 'G1 – Minor',
@@ -59,13 +42,9 @@ export class SpaceWeatherService {
 
   constructor(
     @Inject(NOAA_CLIENT) private readonly noaaClient: INoaaClient,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   async getSolarWind(): Promise<SolarWindResponseDto> {
-    const cached = await this.cache.get<SolarWindResponseDto>(CACHE_KEYS.SOLAR_WIND);
-    if (cached) return cached;
-
     let plasmaRaw: unknown;
     let magRaw: unknown;
 
@@ -112,17 +91,12 @@ export class SpaceWeatherService {
     const result: SolarWindResponseDto = {
       data,
       latest,
-      cachedAt: new Date().toISOString(),
     };
 
-    await this.cache.set(CACHE_KEYS.SOLAR_WIND, result, TTL.SOLAR_WIND);
     return result;
   }
 
   async getKp(): Promise<KpResponseDto> {
-    const cached = await this.cache.get<KpResponseDto>(CACHE_KEYS.KP);
-    if (cached) return cached;
-
     let reading = null;
 
     try {
@@ -165,17 +139,12 @@ export class SpaceWeatherService {
       label: kpLabel(reading.kp),
       source: reading.source,
       time_tag: reading.time_tag,
-      cachedAt: new Date().toISOString(),
     };
 
-    await this.cache.set(CACHE_KEYS.KP, result, TTL.KP);
     return result;
   }
 
   async getFlares(): Promise<FlaresResponseDto> {
-    const cached = await this.cache.get<FlaresResponseDto>(CACHE_KEYS.FLARES);
-    if (cached) return cached;
-
     let raw: unknown;
     try {
       raw = await this.noaaClient.getFlares();
@@ -199,17 +168,12 @@ export class SpaceWeatherService {
     const result: FlaresResponseDto = {
       flares,
       activeClass,
-      cachedAt: new Date().toISOString(),
     };
 
-    await this.cache.set(CACHE_KEYS.FLARES, result, TTL.FLARES);
     return result;
   }
 
   async getAlerts(): Promise<AlertsResponseDto> {
-    const cached = await this.cache.get<AlertsResponseDto>(CACHE_KEYS.ALERTS);
-    if (cached) return cached;
-
     let raw: unknown;
     try {
       raw = await this.noaaClient.getAlerts();
@@ -224,10 +188,8 @@ export class SpaceWeatherService {
 
     const result: AlertsResponseDto = {
       alerts,
-      cachedAt: new Date().toISOString(),
     };
 
-    await this.cache.set(CACHE_KEYS.ALERTS, result, TTL.ALERTS);
     return result;
   }
 

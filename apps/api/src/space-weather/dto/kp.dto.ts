@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // KpResponseDto is a response envelope — it contains all KpReading fields plus
-// `label` and `cachedAt`. It intentionally does not `implements KpReading` because
+// `label`. It intentionally does not `implements KpReading` because
 // the interface may gain required fields that don't belong on an envelope DTO.
 export class KpResponseDto {
   @ApiProperty({
@@ -32,9 +32,4 @@ export class KpResponseDto {
   })
   time_tag: string;
 
-  @ApiProperty({
-    description: 'ISO 8601 timestamp recording when this response was last cached',
-    example: '2024-03-15T12:05:00Z',
-  })
-  cachedAt: string;
 }

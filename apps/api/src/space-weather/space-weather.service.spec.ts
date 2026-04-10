@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { AxiosError } from 'axios';
 
 import { SpaceWeatherService } from './space-weather.service';
@@ -79,13 +78,8 @@ function makeAxiosError(message: string): AxiosError {
 describe('SpaceWeatherService — getSolarWind()', () => {
   let service: SpaceWeatherService;
   let noaaClient: jest.Mocked<INoaaClient>;
-  let cacheGet: jest.Mock;
-  let cacheSet: jest.Mock;
 
   beforeEach(async () => {
-    cacheGet = jest.fn().mockResolvedValue(undefined);
-    cacheSet = jest.fn().mockResolvedValue(undefined);
-
     const mockNoaaClient: jest.Mocked<INoaaClient> = {
       getPlasma: jest.fn(),
       getMag: jest.fn(),
@@ -99,7 +93,6 @@ describe('SpaceWeatherService — getSolarWind()', () => {
       providers: [
         SpaceWeatherService,
         { provide: NOAA_CLIENT, useValue: mockNoaaClient },
-        { provide: CACHE_MANAGER, useValue: { get: cacheGet, set: cacheSet } },
       ],
     }).compile();
 
@@ -197,13 +190,8 @@ describe('SpaceWeatherService — getSolarWind()', () => {
 describe('SpaceWeatherService — getKp()', () => {
   let service: SpaceWeatherService;
   let noaaClient: jest.Mocked<INoaaClient>;
-  let cacheGet: jest.Mock;
-  let cacheSet: jest.Mock;
 
   beforeEach(async () => {
-    cacheGet = jest.fn().mockResolvedValue(undefined); // always a cache miss
-    cacheSet = jest.fn().mockResolvedValue(undefined);
-
     const mockNoaaClient: jest.Mocked<INoaaClient> = {
       getPlasma: jest.fn(),
       getMag: jest.fn(),
@@ -217,7 +205,6 @@ describe('SpaceWeatherService — getKp()', () => {
       providers: [
         SpaceWeatherService,
         { provide: NOAA_CLIENT, useValue: mockNoaaClient },
-        { provide: CACHE_MANAGER, useValue: { get: cacheGet, set: cacheSet } },
       ],
     }).compile();
 
@@ -246,29 +233,6 @@ describe('SpaceWeatherService — getKp()', () => {
     const result = await service.getKp();
 
     expect(result.label).toBe('Quiet');
-  });
-
-  it('sets the cache after a successful fetch', async () => {
-    noaaClient.getKpPrimary.mockResolvedValue(PRIMARY_KP_PAYLOAD);
-
-    await service.getKp();
-
-    expect(cacheSet).toHaveBeenCalledTimes(1);
-    const [key, value, ttl] = cacheSet.mock.calls[0];
-    expect(key).toBe('space-weather:kp');
-    expect(value).toMatchObject({ source: 'primary', kp: 3.5 });
-    expect(typeof ttl).toBe('number');
-    expect(ttl).toBeGreaterThan(0);
-  });
-
-  it('returns cached value without calling NOAA when cache hits', async () => {
-    const cachedPayload = { kp: 2, label: 'Quiet', source: 'primary', time_tag: '2024-01-01', cachedAt: 'ts' };
-    cacheGet.mockResolvedValueOnce(cachedPayload);
-
-    const result = await service.getKp();
-
-    expect(result).toEqual(cachedPayload);
-    expect(noaaClient.getKpPrimary).not.toHaveBeenCalled();
   });
 
   // -------------------------------------------------------------------------
@@ -381,7 +345,6 @@ describe('SpaceWeatherService — getFlares() activeClass', () => {
       providers: [
         SpaceWeatherService,
         { provide: NOAA_CLIENT, useValue: mockNoaaClient },
-        { provide: CACHE_MANAGER, useValue: { get: jest.fn().mockResolvedValue(undefined), set: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 
@@ -477,7 +440,6 @@ describe('SpaceWeatherService — getAlerts()', () => {
       providers: [
         SpaceWeatherService,
         { provide: NOAA_CLIENT, useValue: mockNoaaClient },
-        { provide: CACHE_MANAGER, useValue: { get: jest.fn().mockResolvedValue(undefined), set: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 
@@ -491,7 +453,6 @@ describe('SpaceWeatherService — getAlerts()', () => {
     const result = await service.getAlerts();
 
     expect(result.alerts).toEqual([]);
-    expect(result.cachedAt).toBeTruthy();
   });
 
   it('returns parsed alerts when NOAA returns alert objects', async () => {
