@@ -23,6 +23,8 @@ export function LocationModal() {
       const found = await searchCity(trimmed);
       if (found.length === 0) {
         setError('NO RESULTS FOUND. TRY A DIFFERENT CITY NAME.');
+      } else if (found.length === 1) {
+        handleResultClick(found[0]);
       } else {
         setResults(found);
       }
