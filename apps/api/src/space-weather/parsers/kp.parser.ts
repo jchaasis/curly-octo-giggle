@@ -4,13 +4,13 @@ import { KpReading } from '@repo/shared';
 // Examples: "4+" → 4, "3.33" → 3.33, "4-" → 4.
 // Returns null for any value that is negative (including the "-1" sentinel) or
 // above the valid Kp scale ceiling of 9, or otherwise unparseable.
-function parseKpValue(raw: unknown): number | null {
-  const str = String(raw).trim();
+function parseKpValue(rawKp: unknown): number | null {
+  const kpString = String(rawKp).trim();
   // Remove any trailing non-numeric characters (e.g. "+", "-", letters).
-  const cleaned = str.replace(/[^0-9.]+$/, '');
-  const n = parseFloat(cleaned);
-  if (isNaN(n) || n < 0 || n > 9) return null;
-  return n;
+  const cleanedKp = kpString.replace(/[^0-9.]+$/, '');
+  const parsedKp = parseFloat(cleanedKp);
+  if (isNaN(parsedKp) || parsedKp < 0 || parsedKp > 9) return null;
+  return parsedKp;
 }
 
 // Primary endpoint: /products/noaa-planetary-k-index.json

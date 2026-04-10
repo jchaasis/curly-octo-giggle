@@ -2,33 +2,33 @@ import { Flare } from '@repo/shared';
 
 // NOAA flare data field names vary by endpoint/version.
 // We handle the known aliases here to stay robust against minor API changes.
-export function parseFlares(raw: unknown): Flare[] {
-  if (!Array.isArray(raw)) return [];
+export function parseFlares(rawFlares: unknown): Flare[] {
+  if (!Array.isArray(rawFlares)) return [];
 
   const flares: Flare[] = [];
 
-  for (const item of raw) {
+  for (const item of rawFlares) {
     if (typeof item !== 'object' || item === null) continue;
 
-    const r = item as Record<string, unknown>;
+    const flareData = item as Record<string, unknown>;
 
     const begin_time =
-      typeof r['begin_time'] === 'string'
-        ? r['begin_time']
-        : typeof r['begin_datetime'] === 'string'
-          ? r['begin_datetime']
+      typeof flareData['begin_time'] === 'string'
+        ? flareData['begin_time']
+        : typeof flareData['begin_datetime'] === 'string'
+          ? flareData['begin_datetime']
           : null;
 
     if (!begin_time) continue;
 
     // NOAA uses 'class', 'scale', or 'max_class' depending on endpoint.
     const rawClassString =
-      typeof r['class'] === 'string'
-        ? r['class']
-        : typeof r['scale'] === 'string'
-          ? r['scale']
-          : typeof r['max_class'] === 'string'
-            ? r['max_class']
+      typeof flareData['class'] === 'string'
+        ? flareData['class']
+        : typeof flareData['scale'] === 'string'
+          ? flareData['scale']
+          : typeof flareData['max_class'] === 'string'
+            ? flareData['max_class']
             : null;
 
     if (!rawClassString || rawClassString.trim() === '') continue;
@@ -38,19 +38,19 @@ export function parseFlares(raw: unknown): Flare[] {
 
     // NOAA uses 'peak_time' or 'max_time' depending on the endpoint.
     const peak_time =
-      typeof r['peak_time'] === 'string'
-        ? r['peak_time']
-        : typeof r['max_time'] === 'string'
-          ? r['max_time']
+      typeof flareData['peak_time'] === 'string'
+        ? flareData['peak_time']
+        : typeof flareData['max_time'] === 'string'
+          ? flareData['max_time']
           : null;
     const end_time =
-      typeof r['end_time'] === 'string' ? r['end_time'] : null;
+      typeof flareData['end_time'] === 'string' ? flareData['end_time'] : null;
 
     // Unknown element types (e.g. nested event objects) are coerced to strings
     // defensively. Unknown flare class letters (e.g. historical 'S' subflares)
     // are kept as-is and handled by the consumer's class ranking logic.
-    const linked_events = Array.isArray(r['linked_events'])
-      ? (r['linked_events'] as unknown[]).map((e) => String(e))
+    const linked_events = Array.isArray(flareData['linked_events'])
+      ? (flareData['linked_events'] as unknown[]).map((e) => String(e))
       : null;
 
     flares.push({ begin_time, peak_time, end_time, class_letter, scale: classString, linked_events });
