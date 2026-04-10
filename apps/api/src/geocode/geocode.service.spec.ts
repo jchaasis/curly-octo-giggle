@@ -1,3 +1,4 @@
+import { vi, type Mocked } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { GeocodeService } from './geocode.service';
@@ -15,12 +16,12 @@ function geoResult(city: string) {
 
 describe('GeocodeService — search()', () => {
   let service: GeocodeService;
-  let nominatim: jest.Mocked<INominatimClient>;
+  let nominatim: Mocked<INominatimClient>;
 
   beforeEach(async () => {
-    const mockNominatim: jest.Mocked<INominatimClient> = {
-      search: jest.fn(),
-      reverse: jest.fn(),
+    const mockNominatim: Mocked<INominatimClient> = {
+      search: vi.fn(),
+      reverse: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -115,12 +116,12 @@ describe('GeocodeService — search()', () => {
 
 describe('GeocodeService — reverse()', () => {
   let service: GeocodeService;
-  let nominatim: jest.Mocked<INominatimClient>;
+  let nominatim: Mocked<INominatimClient>;
 
   beforeEach(async () => {
-    const mockNominatim: jest.Mocked<INominatimClient> = {
-      search: jest.fn(),
-      reverse: jest.fn(),
+    const mockNominatim: Mocked<INominatimClient> = {
+      search: vi.fn(),
+      reverse: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
