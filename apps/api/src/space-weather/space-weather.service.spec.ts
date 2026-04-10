@@ -1,3 +1,4 @@
+import { vi, type Mocked } from 'vitest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { AxiosError } from 'axios';
@@ -77,16 +78,16 @@ function makeAxiosError(message: string): AxiosError {
 
 describe('SpaceWeatherService — getSolarWind()', () => {
   let service: SpaceWeatherService;
-  let noaaClient: jest.Mocked<INoaaClient>;
+  let noaaClient: Mocked<INoaaClient>;
 
   beforeEach(async () => {
-    const mockNoaaClient: jest.Mocked<INoaaClient> = {
-      getPlasma: jest.fn(),
-      getMag: jest.fn(),
-      getKpPrimary: jest.fn(),
-      getKpFallback: jest.fn(),
-      getFlares: jest.fn(),
-      getAlerts: jest.fn(),
+    const mockNoaaClient: Mocked<INoaaClient> = {
+      getPlasma: vi.fn(),
+      getMag: vi.fn(),
+      getKpPrimary: vi.fn(),
+      getKpFallback: vi.fn(),
+      getFlares: vi.fn(),
+      getAlerts: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -189,16 +190,16 @@ describe('SpaceWeatherService — getSolarWind()', () => {
 
 describe('SpaceWeatherService — getKp()', () => {
   let service: SpaceWeatherService;
-  let noaaClient: jest.Mocked<INoaaClient>;
+  let noaaClient: Mocked<INoaaClient>;
 
   beforeEach(async () => {
-    const mockNoaaClient: jest.Mocked<INoaaClient> = {
-      getPlasma: jest.fn(),
-      getMag: jest.fn(),
-      getKpPrimary: jest.fn(),
-      getKpFallback: jest.fn(),
-      getFlares: jest.fn(),
-      getAlerts: jest.fn(),
+    const mockNoaaClient: Mocked<INoaaClient> = {
+      getPlasma: vi.fn(),
+      getMag: vi.fn(),
+      getKpPrimary: vi.fn(),
+      getKpFallback: vi.fn(),
+      getFlares: vi.fn(),
+      getAlerts: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -329,16 +330,16 @@ function flare(class_letter: string, end_time: string | null) {
 
 describe('SpaceWeatherService — getFlares() activeClass', () => {
   let service: SpaceWeatherService;
-  let noaaClient: jest.Mocked<INoaaClient>;
+  let noaaClient: Mocked<INoaaClient>;
 
   beforeEach(async () => {
-    const mockNoaaClient: jest.Mocked<INoaaClient> = {
-      getPlasma: jest.fn(),
-      getMag: jest.fn(),
-      getKpPrimary: jest.fn(),
-      getKpFallback: jest.fn(),
-      getFlares: jest.fn(),
-      getAlerts: jest.fn(),
+    const mockNoaaClient: Mocked<INoaaClient> = {
+      getPlasma: vi.fn(),
+      getMag: vi.fn(),
+      getKpPrimary: vi.fn(),
+      getKpFallback: vi.fn(),
+      getFlares: vi.fn(),
+      getAlerts: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -424,16 +425,16 @@ describe('SpaceWeatherService — getFlares() activeClass', () => {
 
 describe('SpaceWeatherService — getAlerts()', () => {
   let service: SpaceWeatherService;
-  let noaaClient: jest.Mocked<INoaaClient>;
+  let noaaClient: Mocked<INoaaClient>;
 
   beforeEach(async () => {
-    const mockNoaaClient: jest.Mocked<INoaaClient> = {
-      getPlasma: jest.fn(),
-      getMag: jest.fn(),
-      getKpPrimary: jest.fn(),
-      getKpFallback: jest.fn(),
-      getFlares: jest.fn(),
-      getAlerts: jest.fn(),
+    const mockNoaaClient: Mocked<INoaaClient> = {
+      getPlasma: vi.fn(),
+      getMag: vi.fn(),
+      getKpPrimary: vi.fn(),
+      getKpFallback: vi.fn(),
+      getFlares: vi.fn(),
+      getAlerts: vi.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
