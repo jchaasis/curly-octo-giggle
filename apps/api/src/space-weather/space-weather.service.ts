@@ -63,8 +63,10 @@ export class SpaceWeatherService {
     const plasma = parsePlasma(plasmaRaw);
     const mag = parseMag(magRaw);
 
-    const magTags = new Set(mag.map((r) => r.time_tag));
-    const data = plasma.filter((r) => magTags.has(r.time_tag));
+    const magByTag = new Map(mag.map((r) => [r.time_tag, r.bz]));
+    const data = plasma
+      .filter((r) => magByTag.has(r.time_tag))
+      .map((r) => ({ ...r, bz: magByTag.get(r.time_tag) ?? null }));
 
     // A non-empty join of two non-empty feeds is the expected case.
     // An empty result here almost always means a timestamp skew between feeds.
@@ -76,10 +78,10 @@ export class SpaceWeatherService {
       );
     }
 
-    // Scan backwards for the most recent entry where all three measurements are
-    // non-null. Partial rows (e.g. temperature still pending) are not suitable
-    // as an operational "latest" reading because downstream clients display all
-    // three values and the DTO contract requires all non-null values.
+    // Scan backwards for the most recent entry where the three plasma measurements
+    // are non-null. Partial rows (e.g. temperature still pending) are not suitable
+    // as an operational "latest" reading. bz is intentionally excluded from this
+    // gate — it may be null during a mag data gap without invalidating the reading.
     let latest: SolarWindReadingDto | null = null;
     for (let i = data.length - 1; i >= 0; i--) {
       if (data[i].speed !== null && data[i].density !== null && data[i].temperature !== null) {

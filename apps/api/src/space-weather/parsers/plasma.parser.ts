@@ -50,6 +50,7 @@ export function parsePlasma(data: unknown): SolarWind[] {
         density: toNullableNumber(row[COL_DENSITY]),
         speed: toNullableNumber(row[COL_SPEED]),
         temperature: toNullableNumber(row[COL_TEMPERATURE]),
+        bz: null, // populated by the service after joining with the mag feed
       });
     }
 
@@ -66,6 +67,7 @@ export function parsePlasma(data: unknown): SolarWind[] {
       speed: toNullableNumber(item.speed),
       density: toNullableNumber(item.density),
       temperature: toNullableNumber(item.temperature),
+      bz: null, // populated by the service after joining with the mag feed
     });
   }
 

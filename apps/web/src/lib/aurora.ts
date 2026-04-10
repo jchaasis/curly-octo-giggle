@@ -17,6 +17,8 @@ const KP_THRESHOLD_LATITUDES: Record<number, number> = {
   9: 35,
 };
 
+// TODO: this should come from an API route
+// Keeping here for the MVP, but will want to revisit
 export function getAuroraStatus(kp: number, latitude: number): AuroraStatus {
   const kpIndex = Math.min(9, Math.max(0, Math.floor(kp)));
   const threshold = KP_THRESHOLD_LATITUDES[kpIndex];
