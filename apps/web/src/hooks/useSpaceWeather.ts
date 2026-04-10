@@ -9,6 +9,7 @@ export interface SpaceWeatherData {
   alerts: AlertsResponse | undefined;
   isLoading: boolean;
   isError: boolean;
+  dataUpdatedAt: number;
   refetch: () => void;
 }
 
@@ -38,6 +39,7 @@ export function useSpaceWeather(): SpaceWeatherData {
     alerts: alertsQ.data,
     isLoading,
     isError,
+    dataUpdatedAt: kpQ.dataUpdatedAt,
     refetch,
   };
 }
